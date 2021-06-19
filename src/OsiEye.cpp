@@ -339,7 +339,7 @@ namespace osiris
             throw runtime_error("Cannot normalize image because original image is not loaded") ;
         }
     
-        mpNormalizedImage = cv::Mat(cvSize(rWidthOfNormalizedIris,rHeightOfNormalizedIris),CV_8UC1) ;
+        mpNormalizedImage = cv::Mat(cv::Size(rWidthOfNormalizedIris,rHeightOfNormalizedIris),CV_8UC1) ;
 
         if ( mThetaCoarsePupil.empty() || mThetaCoarseIris.empty() )
         {
@@ -356,7 +356,7 @@ namespace osiris
             initMask() ;
         }
 
-        mpNormalizedMask = cv::Mat(cvSize(rWidthOfNormalizedIris,rHeightOfNormalizedIris),CV_8UC1) ;
+        mpNormalizedMask = cv::Mat(cv::Size(rWidthOfNormalizedIris,rHeightOfNormalizedIris),CV_8UC1) ;
         
         //op.normalize(mpMask,mpNormalizedMask,mPupil,mIris) ;
 		op.normalizeFromContour(mpMask,mpNormalizedMask,mPupil,mIris,mThetaCoarsePupil,mThetaCoarseIris,mCoarsePupilContour,mCoarseIrisContour) ;
@@ -372,8 +372,8 @@ namespace osiris
         }
 
         // Create the image to store the iris code
-        CvSize size = mpNormalizedImage.size() ;
-        mpIrisCode = cv::Mat(cvSize(size.width,size.height*rGaborFilters.size()),CV_8UC1) ;
+        cv::Size size = mpNormalizedImage.size() ;
+        mpIrisCode = cv::Mat(cv::Size(size.width,size.height*rGaborFilters.size()),CV_8UC1) ;
 
         // Encode
         OsiProcessings op ;

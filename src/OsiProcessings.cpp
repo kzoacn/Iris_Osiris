@@ -569,7 +569,7 @@ namespace osiris
                                                   int width )
     {
         // Result image
-        cv::Mat result = cv::Mat(cvSize(pImage->width+2*width,pImage->height),pImage->depth,pImage->nChannels) ;
+        cv::Mat result = cv::Mat(cv::Size(pImage->width+2*width,pImage->height),pImage->depth,pImage->nChannels) ;
         
         // Copy the image in the center
         cvCopyMakeBorder(pImage,result,cv::Point(width,0),IPL_BORDER_REPLICATE,cv::ScalarAll(0)) ;    
@@ -643,7 +643,7 @@ namespace osiris
 
         // Resize image (downsample)
         float scale = (float) OSI_SMALLEST_PUPIL / minPupilDiameter ;
-        cv::Mat resized = cv::Mat(cvSize(pSrc->width*scale,pSrc->height*scale),pSrc->depth,1) ;
+        cv::Mat resized = cv::Mat(cv::Size(pSrc->width*scale,pSrc->height*scale),pSrc->depth,1) ;
         cvResize(pSrc,resized) ;
 
         // Rescale sizes
@@ -836,7 +836,7 @@ namespace osiris
         }
 
         // Mask for reconstruction : pSrc + borders=0
-        cv::Mat mask = cv::Mat(cvSize(width+2,height+2),pSrc->depth,1) ;
+        cv::Mat mask = cv::Mat(cv::Size(width+2,height+2),pSrc->depth,1) ;
         mask=0 ;
         cvSetImageROI(mask,cvRect(1,1,width,height)) ;
         cvCopy(pSrc,mask) ;
@@ -913,7 +913,7 @@ namespace osiris
                                             const vector<float> & rTheta )
     {
         // Result image
-        cv::Mat result = cv::Mat(cvSize(rTheta.size(),maxRadius-minRadius+1),pSrc->depth,1) ;
+        cv::Mat result = cv::Mat(cv::Size(rTheta.size(),maxRadius-minRadius+1),pSrc->depth,1) ;
         result=0 ;
 
         // Loop on columns of normalized image
