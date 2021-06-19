@@ -286,7 +286,7 @@ namespace osiris
         {
             
         }
-        if ( ! mpOriginalImage.empty() )
+        if ( mpOriginalImage.empty() )
         {
             throw runtime_error("Cannot initialize the mask because original image is not loaded") ;
         }
@@ -298,7 +298,7 @@ namespace osiris
 
     void OsiEye::segment ( int minIrisDiameter , int minPupilDiameter , int maxIrisDiameter , int maxPupilDiameter )
     {
-        if ( ! mpOriginalImage.empty() )
+        if ( mpOriginalImage.empty() )
         {
             throw runtime_error("Cannot segment image because original image is not loaded") ;
         }
@@ -333,7 +333,7 @@ namespace osiris
         OsiProcessings op ;
 
         // For the image
-        if ( ! mpOriginalImage.empty() )
+        if ( mpOriginalImage.empty() )
         {
             throw runtime_error("Cannot normalize image because original image is not loaded") ;
         }
@@ -365,7 +365,7 @@ namespace osiris
 
     void OsiEye::encode ( const vector<cv::Mat*> & rGaborFilters )
     {
-        if ( ! mpNormalizedImage.empty() )
+        if ( mpNormalizedImage.empty() )
         {
             throw runtime_error("Cannot encode because normalized image is not loaded") ;
         }
@@ -384,11 +384,11 @@ namespace osiris
     float OsiEye::match ( OsiEye & rEye , const cv::Mat * pApplicationPoints )
     {
         // Check that both iris codes are built
-        if ( ! mpIrisCode.empty() )
+        if ( mpIrisCode.empty() )
         {
             throw runtime_error("Cannot match because iris code 1 is not built (nor computed neither loaded)") ;
         }
-        if ( ! rEye.mpIrisCode.empty() )
+        if ( rEye.mpIrisCode.empty() )
         {
             throw runtime_error("Cannot match because iris code 2 is not built (nor computed neither loaded)") ;
         }
@@ -397,13 +397,13 @@ namespace osiris
         // :TODO: must inform the user of this step, for example if user provides masks for all images
         // but one is missing for only one image. However, message must not be spammed if the user
         // did not provide any mask ! So it must be found a way to inform user but without spamming
-        if ( ! mpNormalizedMask.empty() )
+        if ( mpNormalizedMask.empty() )
         {
             mpNormalizedMask = cv::Mat(pApplicationPoints->size(),CV_8UC1) ;
             mpNormalizedMask=cv::Scalar(255) ;
             //cout << "Normalized mask of image 1 is missing for matching. All pixels are initialized to 255" << endl ;
         }
-        if ( ! rEye.mpNormalizedMask.empty() )
+        if ( rEye.mpNormalizedMask.empty() )
         {
             rEye.mpNormalizedMask = cv::Mat(pApplicationPoints->size(),CV_8UC1) ;
             rEye.mpNormalizedMask=cv::Scalar(255) ;
@@ -413,14 +413,14 @@ namespace osiris
         // Build the total mask = mask1 * mask2 * points    
         cv::Mat temp = cv::Mat(pApplicationPoints->size(),mpIrisCode.depth(),1) ;
         temp=cv::Scalar(0) ;
-        cv::bitwise_and(mpNormalizedMask,rEye.mpNormalizedMask,temp,pApplicationPoints) ;
+        cv::bitwise_and(mpNormalizedMask,rEye.mpNormalizedMask,temp,*pApplicationPoints) ;
 
         // Copy the mask f times, where f correspond to the number of codes (= number of filters)
         int n_codes = mpIrisCode.size().height / pApplicationPoints->size().height ;
         cv::Mat total_mask = cv::Mat(mpIrisCode.size(),CV_8UC1) ;
         for ( int n = 0 ; n < n_codes ; n++ )
         {
-            cvSetImageROI(total_mask,cvRect(0,n*pApplicationPoints->height,pApplicationPoints->width,pApplicationPoints->height)) ;
+            cvSetImageROI(total_mask,cv::Rect(0,n*pApplicationPoints->size().height,pApplicationPoints->size().width,pApplicationPoints->size().height)) ;
             cvCopy(temp,total_mask) ;        
             cvResetImageROI(total_mask) ;
         }
