@@ -318,9 +318,8 @@ namespace osiris
         tmp=0 ;
         cv::circle(tmp,mIris.getCenter(),mIris.getRadius(),cv::Scalar(255),-1) ;
         cv::circle(tmp,mPupil.getCenter(),mPupil.getRadius(),cv::Scalar(0),-1) ;
-        cvSub(tmp,mpMask,tmp) ;
-        cvSet(mpSegmentedImage,cv::Scalar(0,0,255),tmp) ;
-        
+        tmp=mpMask-tmp; 
+        mpSegmentedImage.setTo(cv::Scalar(0,0,255),tmp);
         cv::circle(mpSegmentedImage,mPupil.getCenter(),mPupil.getRadius(),cv::Scalar(0,255,0)) ;
         cv::circle(mpSegmentedImage,mIris.getCenter(),mIris.getRadius(),cv::Scalar(0,255,0)) ;
 
