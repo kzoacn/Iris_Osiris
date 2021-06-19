@@ -168,7 +168,7 @@ namespace osiris
         * @return void
         * @see OsiProcessings::encode()
         */
-        void encode ( const std::vector<CvMat*> & rGaborFilters ) ;
+        void encode ( const std::vector<cv::Mat*> & rGaborFilters ) ;
 
 
 
@@ -182,27 +182,27 @@ namespace osiris
         * @return The hamming distance between the two eyes.
         * @see OsiProcessings::match()
         */
-        float match ( OsiEye & rEye , const CvMat * pApplicationPoints ) ;
+        float match ( OsiEye & rEye , const cv::Mat * pApplicationPoints ) ;
 
     private :
 
         /** The original image corresponding to the eye (input only). */
-        IplImage * mpOriginalImage ;
+        cv::Mat mpOriginalImage ;
 
         /** The segmented image (color) corresponding to the eye (output only). */
-        IplImage * mpSegmentedImage ;
+        cv::Mat mpSegmentedImage ;
 
         /** The mask corresponding to the eye (input and/or output). */
-        IplImage * mpMask ;
+        cv::Mat mpMask ;
 
         /** The normalized image corresponding to the eye (input and/or output). */
-        IplImage * mpNormalizedImage ;
+        cv::Mat mpNormalizedImage ;
 
         /** The normalized mask corresponding to the eye (input and/or output). */
-        IplImage * mpNormalizedMask ;
+        cv::Mat mpNormalizedMask ;
 
         /** The iris code (stored as an image) corresponding to the eye (input and/or output). */
-        IplImage * mpIrisCode ;
+        cv::Mat mpIrisCode ;
 
         /** The pupil circle corresponding to the eye (input and/or output). */
         OsiCircle mPupil ;
@@ -211,10 +211,10 @@ namespace osiris
         OsiCircle mIris ;
 
 		/** The pupil coarse contour corresponding to the eye. */
-		std::vector<CvPoint> mCoarsePupilContour ;
+		std::vector<cv::Point> mCoarsePupilContour ;
 
 		/** The iris coarse contour corresponding to the eye. */
-		std::vector<CvPoint> mCoarseIrisContour ;
+		std::vector<cv::Point> mCoarseIrisContour ;
 
 		/** The theta sampling for pupil coarse contour. */
 		std::vector<float> mThetaCoarsePupil ;
@@ -227,7 +227,7 @@ namespace osiris
         * @param ppImage A pointer of pointer on the image
         * @return void
         */
-        void loadImage ( const std::string & rFilename , IplImage ** ppImage ) ;
+        void loadImage ( const std::string & rFilename , cv::Mat* ppImage ) ;
 
 
         /** Generic function to load the image-like attributes of the eye.
@@ -235,7 +235,7 @@ namespace osiris
         * @param pImage A pointer on the image
         * @return void
         */
-        void saveImage ( const std::string & rFilename , const IplImage * pImage ) ;
+        void saveImage ( const std::string & rFilename , const cv::Mat pImage ) ;
 
     } ; // End of class
 

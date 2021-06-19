@@ -10,7 +10,7 @@
 #define OSI_CIRCLE_H
 
 #include <iostream>
-#include "highgui.h"
+#include "opencv2/opencv.hpp"
 
 
 namespace osiris
@@ -34,7 +34,7 @@ namespace osiris
         * @param rCenter Initialization of the center
         * @param rRadius Initialization of the radius
         */
-        OsiCircle ( const CvPoint & rCenter , int rRadius ) ;
+        OsiCircle ( const cv::Point & rCenter , int rRadius ) ;
 
 
 
@@ -45,7 +45,7 @@ namespace osiris
         * @return void
         * @see segment()
         */
-        void computeCircleFitting ( const std::vector<CvPoint> & rPoints ) ;
+        void computeCircleFitting ( const std::vector<cv::Point> & rPoints ) ;
 
 
 
@@ -55,14 +55,14 @@ namespace osiris
         * @param thickness Circle thickness. Set to -1 to draw the disk inside the circle
         * @return void
         */
-        void drawCircle ( IplImage * pImage , const CvScalar & rColor = cvScalar(255) , int thickness = 1 ) ;
+        void drawCircle ( cv::Mat pImage , const cv::Scalar & rColor = cv::Scalar(255) , int thickness = 1 ) ;
 
 
 
         /** Get the circle center.
         * @return The circle center
         */
-        CvPoint getCenter ( ) const ;
+        cv::Point getCenter ( ) const ;
 
 
 
@@ -77,7 +77,7 @@ namespace osiris
         * @param rCenter The circle center
         * @return void
         */
-        void setCenter ( const CvPoint & rCenter ) ;
+        void setCenter ( const cv::Point & rCenter ) ;
 
 
 
@@ -94,7 +94,7 @@ namespace osiris
         * @param rRadius The circle radius
         * @return void
         */
-        void setCircle ( const CvPoint & rCenter , int rRadius ) ;
+        void setCircle ( const cv::Point & rCenter , int rRadius ) ;
 
 
 
@@ -113,7 +113,7 @@ namespace osiris
 
 
         /** The circle center. */
-        CvPoint mCenter ;
+        cv::Point mCenter ;
 
         /** The circle radius. */
         int mRadius ;

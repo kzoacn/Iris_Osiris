@@ -28,7 +28,7 @@ namespace osiris
         // Do nothing
     }
 
-    OsiCircle::OsiCircle ( const CvPoint & rCenter , int rRadius )
+    OsiCircle::OsiCircle ( const cv::Point & rCenter , int rRadius )
     {
         setCenter(rCenter) ;
         setRadius(rRadius) ;
@@ -41,7 +41,7 @@ namespace osiris
     ////////////
 
 
-    CvPoint OsiCircle::getCenter ( ) const
+    cv::Point OsiCircle::getCenter ( ) const
     {
         return mCenter ;
     }
@@ -51,7 +51,7 @@ namespace osiris
         return mRadius ;
     }
 
-    void OsiCircle::setCenter(const CvPoint & rCenter )
+    void OsiCircle::setCenter(const cv::Point & rCenter )
     {
         mCenter = rCenter ;
     }
@@ -65,7 +65,7 @@ namespace osiris
         mRadius = rRadius ;
     }
 
-    void OsiCircle::setCircle ( const CvPoint & rCenter , int rRadius )
+    void OsiCircle::setCircle ( const cv::Point & rCenter , int rRadius )
     {
         setCenter(rCenter) ;
         setRadius(rRadius) ;
@@ -73,7 +73,7 @@ namespace osiris
 
     void OsiCircle::setCircle ( int rCenterX , int rCenterY , int rRadius )
     {
-        setCircle(cvPoint(rCenterX,rCenterY),rRadius) ;
+        setCircle(cv::Point(rCenterX,rCenterY),rRadius) ;
     }
 
 
@@ -84,13 +84,13 @@ namespace osiris
     ////////////
 
 
-    void OsiCircle::drawCircle ( IplImage * pImage , const CvScalar & rColor , int thickness )
+    void OsiCircle::drawCircle ( cv::Mat pImage , const cv::Scalar & rColor , int thickness )
     {
-        cvCircle(pImage,mCenter,mRadius,rColor,thickness) ;
+        cv::circle(pImage,mCenter,mRadius,rColor,thickness) ;
     }
 
 
-    void OsiCircle::computeCircleFitting ( const vector<CvPoint> & rPoints )
+    void OsiCircle::computeCircleFitting ( const vector<cv::Point> & rPoints )
     {
         // Compute the averages mx and my
         float mx = 0 , my = 0 ;
@@ -124,7 +124,7 @@ namespace osiris
         float vc = 0.5 * ( suv * ( suuu + suvv ) - suu * ( svvv + suuv ) ) / ( suv * suv - suu * svv ) ;
 
         // Circle parameters
-        setCenter(cvPoint(uc+mx,vc+my)) ;
+        setCenter(cv::Point(uc+mx,vc+my)) ;
         setRadius((int)(sqrt(uc*uc+vc*vc+(suu+svv)/rPoints.size()))) ;
     }
 

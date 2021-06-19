@@ -12,7 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include "highgui.h"
+#include "opencv2/opencv.hpp"
 #include "OsiEye.h"
 
 
@@ -98,9 +98,9 @@ namespace osiris
         int mWidthOfNormalizedIris ;
         int mHeightOfNormalizedIris ;
         std::string mFilenameGaborFilters ;
-        std::vector<CvMat*> mGaborFilters ;
+        std::vector<cv::Mat*> mGaborFilters ;
         std::string mFilenameApplicationPoints ;
-        CvMat* mpApplicationPoints ;
+        cv::Mat* mpApplicationPoints ;
 
         // Suffix for filenames
         std::string mSuffixSegmentedImages ;

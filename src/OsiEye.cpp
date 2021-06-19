@@ -8,7 +8,7 @@
 
 #include <fstream>
 #include <stdexcept>
-#include "cv.h"
+#include "opencv2/opencv.hpp"
 #include "OsiEye.h"
 #include "OsiProcessings.h"
 
@@ -49,7 +49,7 @@ namespace osiris
     // Functions for loading images and parameters
     //////////////////////////////////////////////
 
-    void OsiEye::loadImage ( const string & rFilename , IplImage ** ppImage )
+    void OsiEye::loadImage ( const string & rFilename , cv::Mat* ppImage )
     {
         // :WARNING: ppImage is a pointer of pointer
         try
@@ -59,7 +59,7 @@ namespace osiris
                 cvReleaseImage(ppImage) ;
             }
 
-            *ppImage = cvLoadImage(rFilename.c_str(),0) ;
+            *ppImage = cv::imread(rFilename.c_str(),0) ;
             if ( ! *ppImage )
             {
                 cout << "Cannot load image : " << rFilename << endl ;
@@ -135,8 +135,8 @@ namespace osiris
 			file >> nbi  ;
 			mThetaCoarsePupil.resize(nbp, 0.0) ;
 			mThetaCoarseIris.resize(nbi, 0.0) ;
-			mCoarsePupilContour.resize(nbp, cvPoint(0,0)) ;
-			mCoarseIrisContour.resize(nbi ,cvPoint(0,0)) ;
+			mCoarsePupilContour.resize(nbp, cv::Point(0,0)) ;
+			mCoarseIrisContour.resize(nbi ,cv::Point(0,0)) ;
 			//matrix.resize( num_of col , vector<double>( num_of_row , init_value ) );
 			for (int i = 0 ; i < nbp ; i++)
 			{
@@ -172,7 +172,7 @@ namespace osiris
 
 
 
-    void OsiEye::saveImage ( const string & rFilename , const IplImage * pImage )
+    void OsiEye::saveImage ( const string & rFilename , const cv::Mat pImage )
     {
         // :TODO: no exception here, but 2 error messages
         // 1. pImage does NOT exist => "image was neither comptued nor loaded"
@@ -181,7 +181,7 @@ namespace osiris
         {
             throw runtime_error("Cannot save image " + rFilename + " because this image is not built") ;
         }
-        if ( ! cvSaveImage(rFilename.c_str(),pImage) )
+        if ( ! cv::imwrite(rFilename.c_str(),pImage) )
         {
             cout << "Cannot save image as " << rFilename << endl ;
         }
@@ -291,7 +291,7 @@ namespace osiris
             throw runtime_error("Cannot initialize the mask because original image is not loaded") ;
         }
         mpMask = cvCreateImage(cvGetSize(mpOriginalImage),IPL_DEPTH_8U,1) ;
-        cvSet(mpMask,cvScalar(255)) ;
+        cvSet(mpMask,cv::Scalar(255)) ;
     }
 
 
@@ -315,15 +315,15 @@ namespace osiris
         op.segment(mpOriginalImage,mpMask,mPupil,mIris,mThetaCoarsePupil,mThetaCoarseIris,mCoarsePupilContour,mCoarseIrisContour,minIrisDiameter,minPupilDiameter,maxIrisDiameter,maxPupilDiameter) ;
 
         // Draw on segmented image
-        IplImage * tmp = cvCloneImage(mpMask) ;
+        cv::Mat tmp = cvCloneImage(mpMask) ;
         cvZero(tmp) ;
-        cvCircle(tmp,mIris.getCenter(),mIris.getRadius(),cvScalar(255),-1) ;
-        cvCircle(tmp,mPupil.getCenter(),mPupil.getRadius(),cvScalar(0),-1) ;
+        cv::circle(tmp,mIris.getCenter(),mIris.getRadius(),cv::Scalar(255),-1) ;
+        cv::circle(tmp,mPupil.getCenter(),mPupil.getRadius(),cv::Scalar(0),-1) ;
         cvSub(tmp,mpMask,tmp) ;
-        cvSet(mpSegmentedImage,cvScalar(0,0,255),tmp) ;
+        cvSet(mpSegmentedImage,cv::Scalar(0,0,255),tmp) ;
         cvReleaseImage(&tmp) ;
-        cvCircle(mpSegmentedImage,mPupil.getCenter(),mPupil.getRadius(),cvScalar(0,255,0)) ;
-        cvCircle(mpSegmentedImage,mIris.getCenter(),mIris.getRadius(),cvScalar(0,255,0)) ;
+        cv::circle(mpSegmentedImage,mPupil.getCenter(),mPupil.getRadius(),cv::Scalar(0,255,0)) ;
+        cv::circle(mpSegmentedImage,mIris.getCenter(),mIris.getRadius(),cv::Scalar(0,255,0)) ;
 
     }
 
@@ -365,7 +365,7 @@ namespace osiris
 
 
 
-    void OsiEye::encode ( const vector<CvMat*> & rGaborFilters )
+    void OsiEye::encode ( const vector<cv::Mat*> & rGaborFilters )
     {
         if ( ! mpNormalizedImage )
         {
@@ -383,7 +383,7 @@ namespace osiris
 
 
 
-    float OsiEye::match ( OsiEye & rEye , const CvMat * pApplicationPoints )
+    float OsiEye::match ( OsiEye & rEye , const cv::Mat * pApplicationPoints )
     {
         // Check that both iris codes are built
         if ( ! mpIrisCode )
@@ -402,24 +402,24 @@ namespace osiris
         if ( ! mpNormalizedMask )
         {
             mpNormalizedMask = cvCreateImage(cvGetSize(pApplicationPoints),IPL_DEPTH_8U,1) ;
-            cvSet(mpNormalizedMask,cvScalar(255)) ;
+            cvSet(mpNormalizedMask,cv::Scalar(255)) ;
             //cout << "Normalized mask of image 1 is missing for matching. All pixels are initialized to 255" << endl ;
         }
         if ( ! rEye.mpNormalizedMask )
         {
             rEye.mpNormalizedMask = cvCreateImage(cvGetSize(pApplicationPoints),IPL_DEPTH_8U,1) ;
-            cvSet(rEye.mpNormalizedMask,cvScalar(255)) ;
+            cvSet(rEye.mpNormalizedMask,cv::Scalar(255)) ;
             //cout << "Normalized mask of image 2 is missing for matching. All pixels are initialized to 255" << endl ;
         }
 
         // Build the total mask = mask1 * mask2 * points    
-        IplImage * temp = cvCreateImage(cvGetSize(pApplicationPoints),mpIrisCode->depth,1) ;
-        cvSet(temp,cvScalar(0)) ;
+        cv::Mat temp = cvCreateImage(cvGetSize(pApplicationPoints),mpIrisCode->depth,1) ;
+        cvSet(temp,cv::Scalar(0)) ;
         cvAnd(mpNormalizedMask,rEye.mpNormalizedMask,temp,pApplicationPoints) ;
 
         // Copy the mask f times, where f correspond to the number of codes (= number of filters)
         int n_codes = mpIrisCode->height / pApplicationPoints->height ;
-        IplImage * total_mask = cvCreateImage(cvGetSize(mpIrisCode),IPL_DEPTH_8U,1) ;
+        cv::Mat total_mask = cvCreateImage(cvGetSize(mpIrisCode),IPL_DEPTH_8U,1) ;
         for ( int n = 0 ; n < n_codes ; n++ )
         {
             cvSetImageROI(total_mask,cvRect(0,n*pApplicationPoints->height,pApplicationPoints->width,pApplicationPoints->height)) ;
