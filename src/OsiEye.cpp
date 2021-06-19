@@ -34,12 +34,12 @@ namespace osiris
 
     OsiEye::~OsiEye ( )
     {
-        cvReleaseImage(&mpOriginalImage) ;
-        cvReleaseImage(&mpSegmentedImage) ;
-        cvReleaseImage(&mpMask) ;
-        cvReleaseImage(&mpNormalizedImage) ;
-        cvReleaseImage(&mpNormalizedMask) ;
-        cvReleaseImage(&mpIrisCode) ;
+        
+        
+        
+        
+        
+        
     }
 
 
@@ -56,7 +56,7 @@ namespace osiris
         {
             if ( *ppImage )
             {
-                cvReleaseImage(ppImage) ;
+                
             }
 
             *ppImage = cv::imread(rFilename.c_str(),0) ;
@@ -284,7 +284,7 @@ namespace osiris
     {
         if ( mpMask )
         {
-            cvReleaseImage(&mpMask) ;
+            
         }
         if ( ! mpOriginalImage )
         {
@@ -321,7 +321,7 @@ namespace osiris
         cv::circle(tmp,mPupil.getCenter(),mPupil.getRadius(),cv::Scalar(0),-1) ;
         cvSub(tmp,mpMask,tmp) ;
         cvSet(mpSegmentedImage,cv::Scalar(0,0,255),tmp) ;
-        cvReleaseImage(&tmp) ;
+        
         cv::circle(mpSegmentedImage,mPupil.getCenter(),mPupil.getRadius(),cv::Scalar(0,255,0)) ;
         cv::circle(mpSegmentedImage,mIris.getCenter(),mIris.getRadius(),cv::Scalar(0,255,0)) ;
 
@@ -432,8 +432,8 @@ namespace osiris
         float score = op.match(mpIrisCode,rEye.mpIrisCode,total_mask) ;
 
         // Free memory
-        cvReleaseImage(&temp) ;
-        cvReleaseImage(&total_mask) ;
+        
+        
     
         return score ;
     }

@@ -269,8 +269,8 @@ namespace osiris
                                                             mask_iris2) ;
 
         // Release memory
-        cvReleaseImage(&mask_pupil2) ;
-        cvReleaseImage(&mask_iris2) ;
+        
+        
 
 
 
@@ -308,8 +308,8 @@ namespace osiris
         //double iris_variance = sqrt(cvMean(variance,safe_area)) ;
 		cv::Scalar irisvariance = cvAvg(variance, safe_area);
 		double iris_variance = sqrt(irisvariance.val[0]);
-        cvReleaseImage(&variance) ;
-        cvReleaseImage(&safe_area) ;
+        
+        
 
         // Build mask of noise : |I-mean| > 2.35 * variance
         cv::Mat mask_noise = cvCloneImage(pSrc) ;
@@ -324,13 +324,13 @@ namespace osiris
         cvMorphologyEx(accurate_contours,accurate_contours,accurate_contours,struct_element,CV_MOP_GRADIENT) ;
         cvReleaseStructuringElement(&struct_element) ;
         reconstructMarkerByMask(accurate_contours,mask_noise,mask_noise) ;
-        cvReleaseImage(&accurate_contours) ;
+        
         cvXor(mask_iris,mask_noise,pMask) ;
         
         // Release memory
-        cvReleaseImage(&mask_noise) ;
-        cvReleaseImage(&mask_pupil) ;
-        cvReleaseImage(&mask_iris) ;    
+        
+        
+        
 
     } // end of function
 
@@ -503,9 +503,9 @@ namespace osiris
         }
 
         // Free memory
-        cvReleaseImage(&img1) ;
-        cvReleaseImage(&img2) ;
-        cvReleaseImage(&resized) ;
+        
+        
+        
     }
 
 
@@ -536,8 +536,8 @@ namespace osiris
         }
 
         // Free memory
-        cvReleaseImage(&shifted) ;
-        cvReleaseImage(&result) ;
+        
+        
 
         return score ;
     }
@@ -758,13 +758,13 @@ namespace osiris
         rPupil.setCircle(x,y,r) ;
         
         // Release memory
-        cvReleaseImage(&resized) ;
-        cvReleaseImage(&filled) ;        
-        cvReleaseImage(&gh) ;
-        cvReleaseImage(&gv) ;
-        cvReleaseImage(&gh2) ;
-        cvReleaseImage(&gv2) ;
-        cvReleaseImage(&gn) ;        
+        
+        
+        
+        
+        
+        
+        
         cvReleaseMat(&fh) ;
         cvReleaseMat(&fv) ;
         cvReleaseMat(&mask) ;
@@ -810,8 +810,8 @@ namespace osiris
         }
 
         // Release memory
-        cvReleaseImage(&mask) ;
-        cvReleaseImage(&difference) ;
+        
+        
         cvReleaseStructuringElement(&structuring_element) ;
 
     } // end of function
@@ -858,9 +858,9 @@ namespace osiris
         cvCopy(result,pDst) ;
 
         // Release memory
-        cvReleaseImage(&marker) ;
-        cvReleaseImage(&mask) ;
-        cvReleaseImage(&result) ;        
+        
+        
+        
 
     } // end of function
 
@@ -886,7 +886,7 @@ namespace osiris
             cvConvert(scaled,show) ;
 
             // Release memory
-            cvReleaseImage(&scaled) ;
+            
         }
         else
         {
@@ -898,7 +898,7 @@ namespace osiris
         cvWaitKey(delay) ;
 
         // Release image        
-        cvReleaseImage(&show) ;
+        
     }
 
 
@@ -1049,8 +1049,8 @@ namespace osiris
         }
 
         // Release memory
-        cvReleaseImage(&tfs) ;
-        cvReleaseImage(&tfd) ;
+        
+        
 
     } // end of function
 
@@ -1077,7 +1077,7 @@ namespace osiris
         cvConvertScale(result_sobel,pDst,255/(max-min),-255*min/(max-min)) ;
 
         // Release memory
-        cvReleaseImage(&result_sobel) ;
+        
 
     } // end of function
 
@@ -1185,7 +1185,7 @@ namespace osiris
         }
 
         // Release memory
-        cvReleaseImage(&cost) ;
+        
 
     } // end of function
 
@@ -1219,8 +1219,8 @@ namespace osiris
             cv::Mat temp = cvCloneImage(unwrapped) ;
             cvZero(unwrapped) ;
             cvCopy(temp,unwrapped,mask_unwrapped) ;
-            cvReleaseImage(&temp) ;
-            cvReleaseImage(&mask_unwrapped) ;
+            
+            
         }
 
         // Find optimal path in unwrapped image
@@ -1232,7 +1232,7 @@ namespace osiris
         }
 
         // Release memory
-        cvReleaseImage(&unwrapped) ;
+        
 
         return contour ;
 
@@ -1284,7 +1284,7 @@ namespace osiris
             cvSet(pImage,rColor,mask) ;
 
             // Release memory
-            cvReleaseImage(&mask) ;
+            
 
         }
 
