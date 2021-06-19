@@ -291,7 +291,7 @@ namespace osiris
             throw runtime_error("Cannot initialize the mask because original image is not loaded") ;
         }
         mpMask = cv::Mat(mpOriginalImage.size(),CV_8UC1) ;
-        cvSet(mpMask,cv::Scalar(255)) ;
+        mpMask=cv::Scalar(255) ;
     }
 
 
@@ -316,7 +316,7 @@ namespace osiris
 
         // Draw on segmented image
         cv::Mat tmp = cvCloneImage(mpMask) ;
-        cvZero(tmp) ;
+        tmp=0 ;
         cv::circle(tmp,mIris.getCenter(),mIris.getRadius(),cv::Scalar(255),-1) ;
         cv::circle(tmp,mPupil.getCenter(),mPupil.getRadius(),cv::Scalar(0),-1) ;
         cvSub(tmp,mpMask,tmp) ;
@@ -402,19 +402,19 @@ namespace osiris
         if ( ! mpNormalizedMask.empty() )
         {
             mpNormalizedMask = cv::Mat(pApplicationPoints.size(),CV_8UC1) ;
-            cvSet(mpNormalizedMask,cv::Scalar(255)) ;
+            mpNormalizedMask=cv::Scalar(255) ;
             //cout << "Normalized mask of image 1 is missing for matching. All pixels are initialized to 255" << endl ;
         }
         if ( ! rEye.mpNormalizedMask.empty() )
         {
             rEye.mpNormalizedMask = cv::Mat(pApplicationPoints.size(),CV_8UC1) ;
-            cvSet(rEye.mpNormalizedMask,cv::Scalar(255)) ;
+            rEye.mpNormalizedMask=cv::Scalar(255) ;
             //cout << "Normalized mask of image 2 is missing for matching. All pixels are initialized to 255" << endl ;
         }
 
         // Build the total mask = mask1 * mask2 * points    
         cv::Mat temp = cv::Mat(pApplicationPoints.size(),mpIrisCode->depth,1) ;
-        cvSet(temp,cv::Scalar(0)) ;
+        temp=cv::Scalar(0) ;
         cvAnd(mpNormalizedMask,rEye.mpNormalizedMask,temp,pApplicationPoints) ;
 
         // Copy the mask f times, where f correspond to the number of codes (= number of filters)

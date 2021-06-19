@@ -442,7 +442,7 @@ namespace osiris
         mpApplicationPoints = cvCreateMat(mHeightOfNormalizedIris,mWidthOfNormalizedIris,CV_8UC1) ;
 
         // Initialize all pixels to "off"
-        cvSet(mpApplicationPoints,cv::Scalar(0)) ;        
+        mpApplicationPoints=cv::Scalar(0) ;        
 
         // Local variables
         int i , j ;

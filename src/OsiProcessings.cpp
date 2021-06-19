@@ -348,7 +348,7 @@ namespace osiris
         float theta , radius ;
 
         // Set to zeros all pixels
-        cvZero(pDst) ;
+        pDst=0 ;
 
         // Loop on columns of normalized src
         for ( int j = 0 ; j < pDst->width ; j++ )
@@ -396,7 +396,7 @@ namespace osiris
         float theta , radius ;
 
         // Set to zeros all pixels
-        cvZero(pDst) ;
+        pDst=0 ;
 
         // Loop on columns of normalized src
         for ( int j = 0 ; j < pDst->width ; j++ )
@@ -516,7 +516,7 @@ namespace osiris
     {    
         // Temporary matrix to store the XOR result
         cv::Mat result = cv::Mat(cvGetSize(image1),CV_8UC1) ;
-        cvSet(result,cv::Scalar(0)) ;
+        result=cv::Scalar(0) ;
         
         // Add borders on the image1 in order to shift it
         int shift = 10 ;
@@ -713,7 +713,7 @@ namespace osiris
         for ( int r = (OSI_SMALLEST_PUPIL-1)/2 ; r < (maxPupilDiameter-1)/2 ; r++ )
         {
             // Centred ring with radius = r and width = 2
-            cvZero(mask) ;
+            mask=0 ;
             cv::circle(mask,cv::Point((filter_size-1)/2,(filter_size-1)/2),r,cv::Scalar(1),2) ;
 
             // Fh * Gh
@@ -731,7 +731,7 @@ namespace osiris
             cvScale(gn,gn,1.0/cvSum(mask).val[0]) ;
 
             // Sum in the disk-shaped neighbourhood
-            cvZero(mask) ;
+            mask=0 ;
             cv::circle(mask,cv::Point((filter_size-1)/2,(filter_size-1)/2),r,cv::Scalar(1),-1) ;
             cvFilter2D(filled,gh2,mask) ;
             cvScale(gh2,gh2,-1.0/cvSum(mask).val[0]/255.0,1) ;
@@ -837,14 +837,14 @@ namespace osiris
 
         // Mask for reconstruction : pSrc + borders=0
         cv::Mat mask = cv::Mat(cvSize(width+2,height+2),pSrc->depth,1) ;
-        cvZero(mask) ;
+        mask=0 ;
         cvSetImageROI(mask,cvRect(1,1,width,height)) ;
         cvCopy(pSrc,mask) ;
         cvResetImageROI(mask) ;
 
         // Marker for reconstruction : all=0 + borders=255
         cv::Mat marker = cvCloneImage(mask) ;
-        cvZero(marker) ;
+        marker=0 ;
         cvRectangle(marker,cv::Point(1,1),cv::Point(width+1,height+1),cv::Scalar(255)) ;
 
         // Temporary result of reconstruction
@@ -914,7 +914,7 @@ namespace osiris
     {
         // Result image
         cv::Mat result = cv::Mat(cvSize(rTheta.size(),maxRadius-minRadius+1),pSrc->depth,1) ;
-        cvZero(result) ;
+        result=0 ;
 
         // Loop on columns of normalized image
         for ( int j = 0 ; j < result->width ; j++ )
@@ -1095,7 +1095,7 @@ namespace osiris
         
         // Initialize cost matrix to zero
         cv::Mat cost = cv::Mat(pSrc.size(),CV_32FC1) ;
-        cvZero(cost) ;
+        cost=0 ;
 
         // Forward process : build the cost matrix
         for ( int w = 0 ; w < pSrc->width ; w++ )
@@ -1217,7 +1217,7 @@ namespace osiris
         {
             cv::Mat mask_unwrapped = unwrapRing(pMask,rCenter,minRadius,maxRadius,rTheta) ;
             cv::Mat temp = cvCloneImage(unwrapped) ;
-            cvZero(unwrapped) ;
+            unwrapped=0 ;
             cvCopy(temp,unwrapped,mask_unwrapped) ;
             
             
@@ -1261,7 +1261,7 @@ namespace osiris
         {
             // Draw the contour on binary mask
             cv::Mat mask = cv::Mat(pImage.size(),CV_8UC1) ;
-            cvZero(mask) ;
+            mask=0 ;
             for ( int i = 0 ; i < rContour.size() ; i++ )
             {
                 // Do not exceed image sizes

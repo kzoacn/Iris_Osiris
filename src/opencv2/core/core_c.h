@@ -972,7 +972,7 @@ CVAPI(void)  cvSet( CvArr* arr, cv::Scalar value,
 /** @brief Clears the array.
 
 The function clears the array. In the case of dense arrays (cv::Mat, cv::MatND or IplImage),
-cvZero(array) is equivalent to cvSet(array,cv::ScalarAll(0),0). In the case of sparse arrays all the
+cvZero(array) is equivalent to array=cv::ScalarAll(0,0). In the case of sparse arrays all the
 elements are removed.
 @param arr Array to be cleared
  */
