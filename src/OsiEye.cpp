@@ -351,7 +351,7 @@ namespace osiris
 		op.normalizeFromContour(mpOriginalImage,mpNormalizedImage,mPupil,mIris,mThetaCoarsePupil,mThetaCoarseIris,mCoarsePupilContour,mCoarseIrisContour) ;
 
         // For the mask
-        if ( ! mpMask )
+        if ( ! mpMask.empty() )
         {
             initMask() ;
         }
@@ -400,24 +400,24 @@ namespace osiris
         // did not provide any mask ! So it must be found a way to inform user but without spamming
         if ( ! mpNormalizedMask.empty() )
         {
-            mpNormalizedMask = cv::Mat(pApplicationPoints.size(),CV_8UC1) ;
+            mpNormalizedMask = cv::Mat(pApplicationPoints->size(),CV_8UC1) ;
             mpNormalizedMask=cv::Scalar(255) ;
             //cout << "Normalized mask of image 1 is missing for matching. All pixels are initialized to 255" << endl ;
         }
         if ( ! rEye.mpNormalizedMask.empty() )
         {
-            rEye.mpNormalizedMask = cv::Mat(pApplicationPoints.size(),CV_8UC1) ;
+            rEye.mpNormalizedMask = cv::Mat(pApplicationPoints->size(),CV_8UC1) ;
             rEye.mpNormalizedMask=cv::Scalar(255) ;
             //cout << "Normalized mask of image 2 is missing for matching. All pixels are initialized to 255" << endl ;
         }
 
         // Build the total mask = mask1 * mask2 * points    
-        cv::Mat temp = cv::Mat(pApplicationPoints.size(),mpIrisCode->depth,1) ;
+        cv::Mat temp = cv::Mat(pApplicationPoints->size(),mpIrisCode.depth(),1) ;
         temp=cv::Scalar(0) ;
         cvAnd(mpNormalizedMask,rEye.mpNormalizedMask,temp,pApplicationPoints) ;
 
         // Copy the mask f times, where f correspond to the number of codes (= number of filters)
-        int n_codes = mpIrisCode->height / pApplicationPoints->height ;
+        int n_codes = mpIrisCode.size().height / pApplicationPoints->size().height ;
         cv::Mat total_mask = cv::Mat(mpIrisCode.size(),CV_8UC1) ;
         for ( int n = 0 ; n < n_codes ; n++ )
         {
