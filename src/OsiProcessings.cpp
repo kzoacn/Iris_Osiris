@@ -316,7 +316,7 @@ namespace osiris
         //cvAbsDiffS(pSrc,mask_noise,cv::Scalar(iris_mean)) ;
 		cvAbsDiffS(pSrc, mask_noise, iris_mean);
         cvThreshold(mask_noise,mask_noise,2.35*iris_variance,255,CV_THRESH_BINARY) ;
-        cvAnd(mask_iris,mask_noise,mask_noise) ;
+        cv::bitwise_and(mask_iris,mask_noise,mask_noise) ;
 
         // Fusion with accurate contours
         cv::Mat accurate_contours = mask_iris.clone() ;

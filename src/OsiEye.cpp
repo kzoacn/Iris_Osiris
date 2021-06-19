@@ -413,7 +413,7 @@ namespace osiris
         // Build the total mask = mask1 * mask2 * points    
         cv::Mat temp = cv::Mat(pApplicationPoints->size(),mpIrisCode.depth(),1) ;
         temp=cv::Scalar(0) ;
-        cvAnd(mpNormalizedMask,rEye.mpNormalizedMask,temp,pApplicationPoints) ;
+        cv::bitwise_and(mpNormalizedMask,rEye.mpNormalizedMask,temp,pApplicationPoints) ;
 
         // Copy the mask f times, where f correspond to the number of codes (= number of filters)
         int n_codes = mpIrisCode.size().height / pApplicationPoints->size().height ;
