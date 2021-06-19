@@ -225,7 +225,7 @@ namespace osiris
         // Mask of iris
         ///////////////
 
-        cv::Mat mask_iris = cvCloneImage(mask_pupil) ;
+        cv::Mat mask_iris = mask_pupil.clone() ;
         mask_iris=0 ;
         drawContour(mask_iris,iris_coarse_contour,cv::Scalar(255),-1) ;
 
@@ -239,14 +239,14 @@ namespace osiris
         // mask = dilate(mask-iris) - dilate(mask_pupil)
 
         // Dilate mask of iris by a disk-shape element
-        cv::Mat mask_iris2 = cvCloneImage(mask_iris) ;
+        cv::Mat mask_iris2 = mask_iris.clone() ;
         IplConvKernel * struct_element = cvCreateStructuringElementEx(21,21,10,10,CV_SHAPE_ELLIPSE) ;
         //cvMorphologyEx(mask_iris2,mask_iris2,mask_iris2,struct_element,CV_MOP_DILATE) ;
         cvDilate(mask_iris2,mask_iris2,struct_element) ;
         cvReleaseStructuringElement(&struct_element) ;
 
         // Dilate the mask of pupil by a horizontal line-shape element
-        cv::Mat mask_pupil2 = cvCloneImage(mask_pupil) ;
+        cv::Mat mask_pupil2 = mask_pupil.clone() ;
         struct_element = cvCreateStructuringElementEx(21,21,10,1,CV_SHAPE_RECT) ;
         //cvMorphologyEx(mask_pupil2,mask_pupil2,mask_pupil2,struct_element,CV_MOP_DILATE) ;
         cvDilate(mask_pupil2,mask_pupil2,struct_element) ;
@@ -288,7 +288,7 @@ namespace osiris
         /////////////////////////////////////////
 
         // Build a safe area = avoid occlusions
-        cv::Mat safe_area = cvCloneImage(mask_iris) ;
+        cv::Mat safe_area = mask_iris.clone() ;
         cvRectangle(safe_area,cv::Point(0,0),cv::Point(safe_area->width-1,rPupil.getCenter().y),cv::Scalar(0),-1) ;
         cvRectangle(safe_area,cv::Point(0,rPupil.getCenter().y+rPupil.getRadius()),
                                       cv::Point(safe_area->width-1,safe_area->height-1),cv::Scalar(0),-1) ;
@@ -319,7 +319,7 @@ namespace osiris
         cvAnd(mask_iris,mask_noise,mask_noise) ;
 
         // Fusion with accurate contours
-        cv::Mat accurate_contours = cvCloneImage(mask_iris) ;
+        cv::Mat accurate_contours = mask_iris.clone() ;
         struct_element = cvCreateStructuringElementEx(3,3,1,1,CV_SHAPE_ELLIPSE) ;
         cvMorphologyEx(accurate_contours,accurate_contours,accurate_contours,struct_element,CV_MOP_GRADIENT) ;
         cvReleaseStructuringElement(&struct_element) ;
@@ -515,7 +515,7 @@ namespace osiris
                                   const cv::Mat mask )
     {    
         // Temporary matrix to store the XOR result
-        cv::Mat result = cv::Mat(cvGetSize(image1),CV_8UC1) ;
+        cv::Mat result = cv::Mat(image1.size(),CV_8UC1) ;
         result=cv::Scalar(0) ;
         
         // Add borders on the image1 in order to shift it
