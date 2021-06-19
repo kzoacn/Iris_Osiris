@@ -54,13 +54,13 @@ namespace osiris
         // :WARNING: ppImage is a pointer of pointer
         try
         {
-            if ( *ppImage )
+            if ( ppImage->empty() )
             {
                 
             }
 
             *ppImage = cv::imread(rFilename.c_str(),0) ;
-            if ( ! *ppImage )
+            if ( ppImage->empty() )
             {
                 cout << "Cannot load image : " << rFilename << endl ;
             }
@@ -177,7 +177,7 @@ namespace osiris
         // :TODO: no exception here, but 2 error messages
         // 1. pImage does NOT exist => "image was neither comptued nor loaded"
         // 2. cvSaveImage returns <=0 => "rFilename = invalid for saving"
-        if ( ! pImage )
+        if (  pImage.empty() )
         {
             throw runtime_error("Cannot save image " + rFilename + " because this image is not built") ;
         }
@@ -282,11 +282,11 @@ namespace osiris
 
     void OsiEye::initMask ( )
     {
-        if ( mpMask )
+        if ( mpMask.empty() )
         {
             
         }
-        if ( ! mpOriginalImage )
+        if ( ! mpOriginalImage.empty() )
         {
             throw runtime_error("Cannot initialize the mask because original image is not loaded") ;
         }
@@ -298,7 +298,7 @@ namespace osiris
 
     void OsiEye::segment ( int minIrisDiameter , int minPupilDiameter , int maxIrisDiameter , int maxPupilDiameter )
     {
-        if ( ! mpOriginalImage )
+        if ( ! mpOriginalImage.empty() )
         {
             throw runtime_error("Cannot segment image because original image is not loaded") ;
         }
@@ -335,7 +335,7 @@ namespace osiris
         OsiProcessings op ;
 
         // For the image
-        if ( ! mpOriginalImage )
+        if ( ! mpOriginalImage.empty() )
         {
             throw runtime_error("Cannot normalize image because original image is not loaded") ;
         }
@@ -367,7 +367,7 @@ namespace osiris
 
     void OsiEye::encode ( const vector<cv::Mat*> & rGaborFilters )
     {
-        if ( ! mpNormalizedImage )
+        if ( ! mpNormalizedImage.empty() )
         {
             throw runtime_error("Cannot encode because normalized image is not loaded") ;
         }
@@ -386,11 +386,11 @@ namespace osiris
     float OsiEye::match ( OsiEye & rEye , const cv::Mat * pApplicationPoints )
     {
         // Check that both iris codes are built
-        if ( ! mpIrisCode )
+        if ( ! mpIrisCode.empty() )
         {
             throw runtime_error("Cannot match because iris code 1 is not built (nor computed neither loaded)") ;
         }
-        if ( ! rEye.mpIrisCode )
+        if ( ! rEye.mpIrisCode.empty() )
         {
             throw runtime_error("Cannot match because iris code 2 is not built (nor computed neither loaded)") ;
         }
@@ -399,13 +399,13 @@ namespace osiris
         // :TODO: must inform the user of this step, for example if user provides masks for all images
         // but one is missing for only one image. However, message must not be spammed if the user
         // did not provide any mask ! So it must be found a way to inform user but without spamming
-        if ( ! mpNormalizedMask )
+        if ( ! mpNormalizedMask.empty() )
         {
             mpNormalizedMask = cvCreateImage(cvGetSize(pApplicationPoints),IPL_DEPTH_8U,1) ;
             cvSet(mpNormalizedMask,cv::Scalar(255)) ;
             //cout << "Normalized mask of image 1 is missing for matching. All pixels are initialized to 255" << endl ;
         }
-        if ( ! rEye.mpNormalizedMask )
+        if ( ! rEye.mpNormalizedMask.empty() )
         {
             rEye.mpNormalizedMask = cvCreateImage(cvGetSize(pApplicationPoints),IPL_DEPTH_8U,1) ;
             cvSet(rEye.mpNormalizedMask,cv::Scalar(255)) ;
