@@ -200,7 +200,7 @@ CVAPI(void) cvLaplace( const CvArr* src, CvArr* dst,
 /** @brief Converts input array pixels from one color space to another
 @see cv::cvtColor
 */
-CVAPI(void)  cvCvtColor( const CvArr* src, CvArr* dst, int code );
+CVAPI(void)  cv::cvtColor( const CvArr* src, CvArr* dst, int code );
 
 
 /** @brief Resizes image (input array is resized to fit the destination array)

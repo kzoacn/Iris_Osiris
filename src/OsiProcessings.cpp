@@ -714,7 +714,7 @@ namespace osiris
         {
             // Centred ring with radius = r and width = 2
             mask=0 ;
-            cv::circle(mask,cv::Point((filter_size-1)/2,(filter_size-1)/2),r,cv::Scalar(1),2) ;
+            cv::circle(*mask,cv::Point((filter_size-1)/2,(filter_size-1)/2),r,cv::Scalar(1),2) ;
 
             // Fh * Gh
             temp_filter=0 ;

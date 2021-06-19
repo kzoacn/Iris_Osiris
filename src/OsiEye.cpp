@@ -305,9 +305,8 @@ namespace osiris
 
         // Initialize mask and segmented image
         mpMask = cv::Mat(mpOriginalImage.size(),CV_8UC1) ;
-        mpSegmentedImage = cv::Mat(mpOriginalImage.size(),CV_8UC3) ;
-        cvCvtColor(mpOriginalImage,mpSegmentedImage,CV_GRAY2BGR) ;
-
+        mpSegmentedImage = cv::Mat(mpOriginalImage.size(),CV_8UC3) ; 
+        cv::cvtColor(mpOriginalImage,mpSegmentedImage,cv::COLOR_GRAY2BGR) ;
         // Processing functions
         OsiProcessings op ;
 
