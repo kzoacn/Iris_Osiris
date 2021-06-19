@@ -153,12 +153,12 @@ namespace osiris
         /** Normalize image and mask.
         * If the mask is not already initialized, the function does intialize it to 255.
         * Use the Daugman's rubber-sheet method.
-        * @param widthOfNormalizedIris Width of normalized image
-        * @param heightOfNormalizedIris Height of normalized image
+        * @param size().widthOfNormalizedIris size().width of normalized image
+        * @param size().heightOfNormalizedIris size().height of normalized image
         * @return void
         * @see OsiProcessings::normalize()
         */ 
-        void normalize ( int widthOfNormalizedIris , int heightOfNormalizedIris ) ;
+        void normalize ( int size().widthOfNormalizedIris , int size().heightOfNormalizedIris ) ;
 
 
 

@@ -95,8 +95,8 @@ namespace osiris
         int mMaxPupilDiameter ;
         int mMinIrisDiameter ;
         int mMaxIrisDiameter ;
-        int mWidthOfNormalizedIris ;
-        int mHeightOfNormalizedIris ;
+        int msize().widthOfNormalizedIris ;
+        int msize().heightOfNormalizedIris ;
         std::string mFilenameGaborFilters ;
         std::vector<cv::Mat*> mGaborFilters ;
         std::string mFilenameApplicationPoints ;

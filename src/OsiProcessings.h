@@ -143,11 +143,11 @@ namespace osiris
 
         /** Add borders on left and right of unwrapped image.        
         * @param pImage The original image
-        * @param width The border width
+        * @param size().width The border size().width
         * @return The new image
         * @see match() , encode()
         */
-        cv::Mat addBorders ( const cv::Mat pImage , int width ) ;
+        cv::Mat addBorders ( const cv::Mat pImage , int size().width ) ;
 
 
 
@@ -264,7 +264,7 @@ namespace osiris
         * @return The contour
         * @see runViterbi() , unwrapRing()
         */
-        std::vector<cv::Point> findContour ( const cv::Mat pSrc , const cv::Point & rCenter , const std::vector<float> & rTheta , int minRadius , int maxRadius , const cv::Mat pMask = 0 ) ;
+        std::vector<cv::Point> findContour ( const cv::Mat pSrc , const cv::Point & rCenter , const std::vector<float> & rTheta , int minRadius , int maxRadius , const cv::Mat pMask = cv::Mat() ) ;
 
 
 

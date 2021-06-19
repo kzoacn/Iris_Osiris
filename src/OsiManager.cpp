@@ -49,8 +49,8 @@ namespace osiris
         mMapInt["Maximum diameter for pupil"] = &mMaxPupilDiameter ;
         mMapInt["Minimum diameter for iris"] = &mMinIrisDiameter ;
         mMapInt["Maximum diameter for iris"] = &mMaxIrisDiameter ;
-        mMapInt["Width of normalized image"] = &mWidthOfNormalizedIris ;
-        mMapInt["Height of normalized image"] = &mHeightOfNormalizedIris ;
+        mMapInt["size().width of normalized image"] = &msize().widthOfNormalizedIris ;
+        mMapInt["size().height of normalized image"] = &msize().heightOfNormalizedIris ;
         mMapString["Load Gabor filters"] = &mFilenameGaborFilters ;
         mMapString["Load Application points"] = &mFilenameApplicationPoints ;
         mMapString["Suffix for segmented images"] = &mSuffixSegmentedImages ;
@@ -128,8 +128,8 @@ namespace osiris
         mMaxPupilDiameter = 91 ;
         mMinIrisDiameter = 99 ;
         mMaxIrisDiameter = 399 ;
-        mWidthOfNormalizedIris = 512 ;
-        mHeightOfNormalizedIris = 64 ;
+        msize().widthOfNormalizedIris = 512 ;
+        msize().heightOfNormalizedIris = 64 ;
         mFilenameGaborFilters = "./filters.txt" ;
         mFilenameApplicationPoints = "./points.txt" ;
         mGaborFilters.clear() ;
@@ -350,7 +350,7 @@ namespace osiris
 
         if ( mProcessNormalization || mProcessMatching || mProcessEncoding )
         {
-            cout << "- Size of normalized iris is " << mWidthOfNormalizedIris << " x " << mHeightOfNormalizedIris << endl ;
+            cout << "- Size of normalized iris is " << msize().widthOfNormalizedIris << " x " << msize().heightOfNormalizedIris << endl ;
         }
         
         cout << endl ;
@@ -437,7 +437,7 @@ namespace osiris
         file >> n_points ;
 
         // Allocate memory for the matrix containing the points
-        mpApplicationPoints = &cv::Mat(mHeightOfNormalizedIris,mWidthOfNormalizedIris,CV_8UC1);
+        mpApplicationPoints = &cv::Mat(msize().heightOfNormalizedIris,msize().widthOfNormalizedIris,CV_8UC1);
 
         // Initialize all pixels to "off"
         *mpApplicationPoints=cv::Scalar(0) ;        
@@ -574,7 +574,7 @@ namespace osiris
         // Normalization step
         if ( mProcessNormalization )
         {
-            rEye.normalize(mWidthOfNormalizedIris,mHeightOfNormalizedIris) ;
+            rEye.normalize(msize().widthOfNormalizedIris,msize().heightOfNormalizedIris) ;
         }
 
         // Load normalized image

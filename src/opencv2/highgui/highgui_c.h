@@ -72,11 +72,11 @@ enum {  CV_STYLE_NORMAL         = 0,//QFont::StyleNormal,
 };
 /* ---------*/
 
-//for color cv::Scalar(blue_component, green_component, red_component[, alpha_component])
+//for color cvScalar(blue_component, green_component, red_component[, alpha_component])
 //and alpha= 0 <-> 0xFF (not transparent <-> transparent)
-CVAPI(CvFont) cvFontQt(const char* nameFont, int pointSize CV_DEFAULT(-1), cv::Scalar color CV_DEFAULT(cv::ScalarAll(0)), int weight CV_DEFAULT(CV_FONT_NORMAL),  int style CV_DEFAULT(CV_STYLE_NORMAL), int spacing CV_DEFAULT(0));
+CVAPI(CvFont) cvFontQt(const char* nameFont, int pointSize CV_DEFAULT(-1), CvScalar color CV_DEFAULT(cvScalarAll(0)), int weight CV_DEFAULT(CV_FONT_NORMAL),  int style CV_DEFAULT(CV_STYLE_NORMAL), int spacing CV_DEFAULT(0));
 
-CVAPI(void) cvAddText(const CvArr* img, const char* text, cv::Point org, CvFont *arg2);
+CVAPI(void) cvAddText(const CvArr* img, const char* text, CvPoint org, CvFont *arg2);
 
 CVAPI(void) cvDisplayOverlay(const char* name, const char* text, int delayms CV_DEFAULT(0));
 CVAPI(void) cvDisplayStatusBar(const char* name, const char* text, int delayms CV_DEFAULT(0));

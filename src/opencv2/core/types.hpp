@@ -121,7 +121,7 @@ struct Type< Complex<_Tp> > { enum { value = CV_MAKETYPE(Depth<_Tp>::value, 2) }
 
 /** @brief Template class for 2D points specified by its coordinates `x` and `y`.
 
-An instance of the class is interchangeable with C structures, cv::Point and cv::Point2D32f . There is
+An instance of the class is interchangeable with C structures, CvPoint and CvPoint2D32f . There is
 also a cast operator to convert point coordinates to the specified type. The conversion from
 floating-point coordinates to integer coordinates is done by rounding. Commonly, the conversion
 uses this operation for each of the coordinates. Besides the class members listed in the
@@ -224,7 +224,7 @@ struct Type< Point_<_Tp> > { enum { value = CV_MAKETYPE(Depth<_Tp>::value, 2) };
 
 /** @brief Template class for 3D points specified by its coordinates `x`, `y` and `z`.
 
-An instance of the class is interchangeable with the C structure cv::Point2D32f . Similarly to
+An instance of the class is interchangeable with the C structure CvPoint2D32f . Similarly to
 Point_ , the coordinates of 3D points can be converted to another type. The vector arithmetic and
 comparison operations are also supported.
 
@@ -630,7 +630,7 @@ struct Type< Range > { enum { value = CV_MAKETYPE(Depth<int>::value, 2) }; };
 /** @brief Template class for a 4-element vector derived from Vec.
 
 Being derived from Vec\<_Tp, 4\> , Scalar\_ and Scalar can be used just as typical 4-element
-vectors. In addition, they can be converted to/from cv::Scalar . The type Scalar is widely used in
+vectors. In addition, they can be converted to/from CvScalar . The type Scalar is widely used in
 OpenCV to pass pixel values.
 */
 template<typename _Tp> class Scalar_ : public Vec<_Tp, 4>

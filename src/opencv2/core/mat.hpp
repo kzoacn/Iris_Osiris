@@ -602,7 +602,7 @@ protected:
 An example demonstrating the serial out capabilities of cv::Mat
 */
 
- /** @brief n-dimensional dense array class \anchor cv::Mat_Details
+ /** @brief n-dimensional dense array class \anchor CVMat_Details
 
 The class Mat represents an n-dimensional dense numerical single-channel or multi-channel array. It
 can be used to store real or complex-valued vectors and matrices, grayscale or color images, voxel
@@ -627,7 +627,7 @@ There are many different ways to create a Mat object. The most popular options a
 
 - Use the create(nrows, ncols, type) method or the similar Mat(nrows, ncols, type[, fillValue])
 constructor. A new array of the specified size and type is allocated. type has the same meaning as
-in the cv::Mat method. For example, CV_8UC1 means a 8-bit single-channel array, CV_32FC2
+in the cvCreateMat method. For example, CV_8UC1 means a 8-bit single-channel array, CV_32FC2
 means a 2-channel (complex) floating-point array, and so on.
 @code
     // make a 7x7 complex matrix filled with 1+3j.
@@ -1740,7 +1740,7 @@ public:
 
     /** @brief Returns the type of a matrix element.
 
-    The method returns a matrix element type. This is an identifier compatible with the cv::Mat type
+    The method returns a matrix element type. This is an identifier compatible with the CvMat type
     system, like CV_16SC3 or 16-bit signed 3-channel array, and so on.
      */
     int type() const;
@@ -2507,22 +2507,22 @@ public:
 
     //! returns true iff the matrix data is continuous
     // (i.e. when there are no gaps between successive rows).
-    // similar to CV_IS_MAT_CONT(cv::Mat->type)
+    // similar to CV_IS_MAT_CONT(cvmat->type)
     bool isContinuous() const;
 
     //! returns true if the matrix is a submatrix of another matrix
     bool isSubmatrix() const;
 
     //! returns element size in bytes,
-    // similar to CV_ELEM_SIZE(cv::Mat->type)
+    // similar to CV_ELEM_SIZE(cvmat->type)
     size_t elemSize() const;
     //! returns the size of element channel in bytes.
     size_t elemSize1() const;
-    //! returns element type, similar to CV_MAT_TYPE(cv::Mat->type)
+    //! returns element type, similar to CV_MAT_TYPE(cvmat->type)
     int type() const;
-    //! returns element type, similar to CV_MAT_DEPTH(cv::Mat->type)
+    //! returns element type, similar to CV_MAT_DEPTH(cvmat->type)
     int depth() const;
-    //! returns element type, similar to CV_MAT_CN(cv::Mat->type)
+    //! returns element type, similar to CV_MAT_CN(cvmat->type)
     int channels() const;
     //! returns step/elemSize1()
     size_t step1(int i=0) const;
@@ -2709,13 +2709,13 @@ public:
     SparseMat(int dims, const int* _sizes, int _type);
 
     /** @overload
-    @param m Source matrix for copy constructor. If m is dense matrix (ocv::Mat) then it will be converted
+    @param m Source matrix for copy constructor. If m is dense matrix (ocvMat) then it will be converted
     to sparse representation.
     */
     SparseMat(const SparseMat& m);
 
     /** @overload
-    @param m Source matrix for copy constructor. If m is dense matrix (ocv::Mat) then it will be converted
+    @param m Source matrix for copy constructor. If m is dense matrix (ocvMat) then it will be converted
     to sparse representation.
     */
     explicit SparseMat(const Mat& m);

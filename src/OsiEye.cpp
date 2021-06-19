@@ -327,7 +327,7 @@ namespace osiris
 
 
 
-    void OsiEye::normalize ( int rWidthOfNormalizedIris , int rHeightOfNormalizedIris )
+    void OsiEye::normalize ( int rsize().widthOfNormalizedIris , int rsize().heightOfNormalizedIris )
     {
         // Processing functions
         OsiProcessings op ;
@@ -338,7 +338,7 @@ namespace osiris
             throw runtime_error("Cannot normalize image because original image is not loaded") ;
         }
     
-        mpNormalizedImage = cv::Mat(cv::Size(rWidthOfNormalizedIris,rHeightOfNormalizedIris),CV_8UC1) ;
+        mpNormalizedImage = cv::Mat(cv::Size(rsize().widthOfNormalizedIris,rsize().heightOfNormalizedIris),CV_8UC1) ;
 
         if ( mThetaCoarsePupil.empty() || mThetaCoarseIris.empty() )
         {
@@ -355,7 +355,7 @@ namespace osiris
             initMask() ;
         }
 
-        mpNormalizedMask = cv::Mat(cv::Size(rWidthOfNormalizedIris,rHeightOfNormalizedIris),CV_8UC1) ;
+        mpNormalizedMask = cv::Mat(cv::Size(rsize().widthOfNormalizedIris,rsize().heightOfNormalizedIris),CV_8UC1) ;
         
         //op.normalize(mpMask,mpNormalizedMask,mPupil,mIris) ;
 		op.normalizeFromContour(mpMask,mpNormalizedMask,mPupil,mIris,mThetaCoarsePupil,mThetaCoarseIris,mCoarsePupilContour,mCoarseIrisContour) ;
@@ -372,7 +372,7 @@ namespace osiris
 
         // Create the image to store the iris code
         cv::Size size = mpNormalizedImage.size() ;
-        mpIrisCode = cv::Mat(cv::Size(size.width,size.height*rGaborFilters.size()),CV_8UC1) ;
+        mpIrisCode = cv::Mat(cv::Size(size.size().width,size.size().height*rGaborFilters.size()),CV_8UC1) ;
 
         // Encode
         OsiProcessings op ;
@@ -416,11 +416,11 @@ namespace osiris
         cv::bitwise_and(mpNormalizedMask,rEye.mpNormalizedMask,temp,*pApplicationPoints) ;
 
         // Copy the mask f times, where f correspond to the number of codes (= number of filters)
-        int n_codes = mpIrisCode.size().height / pApplicationPoints->size().height ;
+        int n_codes = mpIrisCode.size().size().height / pApplicationPoints->size().size().height ;
         cv::Mat total_mask = cv::Mat(mpIrisCode.size(),CV_8UC1) ;
         for ( int n = 0 ; n < n_codes ; n++ )
         {
-            cv::Mat image_roi=total_mask(cv::Rect(0,n*pApplicationPoints->size().height,pApplicationPoints->size().width,pApplicationPoints->size().height)) ;
+            cv::Mat image_roi=total_mask(cv::Rect(0,n*pApplicationPoints->size().size().height,pApplicationPoints->size().size().width,pApplicationPoints->size().size().height)) ;
             temp.copyTo(image_roi);   //TODO
         }
 

@@ -382,7 +382,7 @@ public:
     /** @brief Fetch dataset type
     @param dslabel specify the hdf5 dataset label to be checked.
 
-    Returns the stored matrix type. This is an identifier compatible with the cv::Mat type system,
+    Returns the stored matrix type. This is an identifier compatible with the CvMat type system,
     like e.g. CV_16SC5 (16-bit signed 5-channel array), and so on.
 
     @note Result can be parsed with CV_MAT_CN() to obtain amount of channels and CV_MAT_DEPTH() to obtain native cvdata type.

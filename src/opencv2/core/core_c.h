@@ -213,9 +213,9 @@ The function allocates a new matrix header and returns a pointer to it. The matr
 allocated using cvCreateData or set explicitly to user-allocated data via cvSetData.
 @param rows Number of rows in the matrix
 @param cols Number of columns in the matrix
-@param type Type of the matrix elements, see cv::Mat
+@param type Type of the matrix elements, see cvCreateMat
  */
-CVAPI(cv::Mat*)  cv::MatHeader( int rows, int cols, int type );
+CVAPI(CvMat*)  cvCreateMatHeader( int rows, int cols, int type );
 
 #define CV_AUTOSTEP  0x7fffffff
 
@@ -234,24 +234,24 @@ following code computes the matrix product of two matrices, stored as ordinary a
                    4, 8, 12 };
 
     double c[9];
-    cv::Mat Ma, Mb, Mc ;
+    CvMat Ma, Mb, Mc ;
 
     cvInitMatHeader(&Ma, 3, 4, CV_64FC1, a);
     cvInitMatHeader(&Mb, 4, 3, CV_64FC1, b);
     cvInitMatHeader(&Mc, 3, 3, CV_64FC1, c);
 
-    cv::MatMulAdd(&Ma, &Mb, 0, &Mc);
+    cvMatMulAdd(&Ma, &Mb, 0, &Mc);
     // the c array now contains the product of a (3x4) and b (4x3)
 @endcode
 @param mat A pointer to the matrix header to be initialized
 @param rows Number of rows in the matrix
 @param cols Number of columns in the matrix
-@param type Type of the matrix elements, see cv::Mat .
+@param type Type of the matrix elements, see cvCreateMat .
 @param data Optional: data pointer assigned to the matrix header
 @param step Optional: full row width in bytes of the assigned data. By default, the minimal
 possible step is used which assumes there are no gaps between subsequent rows of the matrix.
  */
-CVAPI(cv::Mat*) cvInitMatHeader( cv::Mat* mat, int rows, int cols,
+CVAPI(CvMat*) cvInitMatHeader( CvMat* mat, int rows, int cols,
                               int type, void* data CV_DEFAULT(NULL),
                               int step CV_DEFAULT(CV_AUTOSTEP) );
 
@@ -259,7 +259,7 @@ CVAPI(cv::Mat*) cvInitMatHeader( cv::Mat* mat, int rows, int cols,
 
 The function call is equivalent to the following code:
 @code
-    cv::Mat* mat = cv::MatHeader(rows, cols, type);
+    CvMat* mat = cvCreateMatHeader(rows, cols, type);
     cvCreateData(mat);
 @endcode
 @param rows Number of rows in the matrix
@@ -269,7 +269,7 @@ CV_\<bit depth\>\<S|U|F\>C\<number of channels\> , where S=signed, U=unsigned, F
 example, CV _ 8UC1 means the elements are 8-bit unsigned and the there is 1 channel, and CV _
 32SC2 means the elements are 32-bit signed and there are 2 channels.
  */
-CVAPI(cv::Mat*)  cv::Mat( int rows, int cols, int type );
+CVAPI(CvMat*)  cvCreateMat( int rows, int cols, int type );
 
 /** @brief Deallocates a matrix.
 
@@ -282,11 +282,11 @@ reference counter is 0, it also deallocates the data. :
 @endcode
 @param mat Double pointer to the matrix
  */
-CVAPI(void)  cvReleaseMat( cv::Mat** mat );
+CVAPI(void)  cvReleaseMat( CvMat** mat );
 
 /** @brief Decrements an array data reference counter.
 
-The function decrements the data reference counter in a cv::Mat or cv::MatND if the reference counter
+The function decrements the data reference counter in a CvMat or CvMatND if the reference counter
 
 pointer is not NULL. If the counter reaches zero, the data is deallocated. In the current
 implementation the reference counter is not NULL only if the data was allocated using the
@@ -299,7 +299,7 @@ CV_INLINE  void  cvDecRefData( CvArr* arr )
 {
     if( CV_IS_MAT( arr ))
     {
-        cv::Mat* mat = (cv::Mat*)arr;
+        CvMat* mat = (CvMat*)arr;
         mat->data.ptr = NULL;
         if( mat->refcount != NULL && --*mat->refcount == 0 )
             cvFree( &mat->refcount );
@@ -307,7 +307,7 @@ CV_INLINE  void  cvDecRefData( CvArr* arr )
     }
     else if( CV_IS_MATND( arr ))
     {
-        cv::MatND* mat = (cv::MatND*)arr;
+        CvMatND* mat = (CvMatND*)arr;
         mat->data.ptr = NULL;
         if( mat->refcount != NULL && --*mat->refcount == 0 )
             cvFree( &mat->refcount );
@@ -317,7 +317,7 @@ CV_INLINE  void  cvDecRefData( CvArr* arr )
 
 /** @brief Increments array data reference counter.
 
-The function increments cv::Mat or cv::MatND data reference counter and returns the new counter value if
+The function increments CvMat or CvMatND data reference counter and returns the new counter value if
 the reference counter pointer is not NULL, otherwise it returns zero.
 @param arr Array header
  */
@@ -326,13 +326,13 @@ CV_INLINE  int  cvIncRefData( CvArr* arr )
     int refcount = 0;
     if( CV_IS_MAT( arr ))
     {
-        cv::Mat* mat = (cv::Mat*)arr;
+        CvMat* mat = (CvMat*)arr;
         if( mat->refcount != NULL )
             refcount = ++*mat->refcount;
     }
     else if( CV_IS_MATND( arr ))
     {
-        cv::MatND* mat = (cv::MatND*)arr;
+        CvMatND* mat = (CvMatND*)arr;
         if( mat->refcount != NULL )
             refcount = ++*mat->refcount;
     }
@@ -341,7 +341,7 @@ CV_INLINE  int  cvIncRefData( CvArr* arr )
 
 
 /** Creates an exact copy of the input matrix (except, may be, step value) */
-CVAPI(cv::Mat*) cvCloneMat( const cv::Mat* mat );
+CVAPI(CvMat*) cvCloneMat( const CvMat* mat );
 
 
 /** @brief Returns matrix header corresponding to the rectangular sub-array of input image or matrix.
@@ -354,7 +354,7 @@ taken into account by the function so the sub-array of ROI is actually extracted
 @param submat Pointer to the resultant sub-array header
 @param rect Zero-based coordinates of the rectangle of interest
  */
-CVAPI(cv::Mat*) cvGetSubRect( const CvArr* arr, cv::Mat* submat, CvRect rect );
+CVAPI(CvMat*) cvGetSubRect( const CvArr* arr, CvMat* submat, CvRect rect );
 #define cvGetSubArr cvGetSubRect
 
 /** @brief Returns array row or row span.
@@ -368,7 +368,7 @@ cvGetRow(arr, submat, row) is a shortcut for cvGetRows(arr, submat, row, row+1).
 @param delta_row Index step in the row span. That is, the function extracts every delta_row -th
 row from start_row and up to (but not including) end_row .
  */
-CVAPI(cv::Mat*) cvGetRows( const CvArr* arr, cv::Mat* submat,
+CVAPI(CvMat*) cvGetRows( const CvArr* arr, CvMat* submat,
                         int start_row, int end_row,
                         int delta_row CV_DEFAULT(1));
 
@@ -377,7 +377,7 @@ CVAPI(cv::Mat*) cvGetRows( const CvArr* arr, cv::Mat* submat,
 @param submat Pointer to the resulting sub-array header
 @param row Zero-based index of the selected row
 */
-CV_INLINE  cv::Mat*  cvGetRow( const CvArr* arr, cv::Mat* submat, int row )
+CV_INLINE  CvMat*  cvGetRow( const CvArr* arr, CvMat* submat, int row )
 {
     return cvGetRows( arr, submat, row, row + 1, 1 );
 }
@@ -395,7 +395,7 @@ cvGetCols(arr, submat, col, col+1).
 @param start_col Zero-based index of the starting column (inclusive) of the span
 @param end_col Zero-based index of the ending column (exclusive) of the span
  */
-CVAPI(cv::Mat*) cvGetCols( const CvArr* arr, cv::Mat* submat,
+CVAPI(CvMat*) cvGetCols( const CvArr* arr, CvMat* submat,
                         int start_col, int end_col );
 
 /** @overload
@@ -403,7 +403,7 @@ CVAPI(cv::Mat*) cvGetCols( const CvArr* arr, cv::Mat* submat,
 @param submat Pointer to the resulting sub-array header
 @param col Zero-based index of the selected column
 */
-CV_INLINE  cv::Mat*  cvGetCol( const CvArr* arr, cv::Mat* submat, int col )
+CV_INLINE  CvMat*  cvGetCol( const CvArr* arr, CvMat* submat, int col )
 {
     return cvGetCols( arr, submat, col, col + 1 );
 }
@@ -417,14 +417,14 @@ The function returns the header, corresponding to a specified diagonal of the in
 corresponds to the diagonal above the main, 1 corresponds to the diagonal below the main, and so
 forth.
  */
-CVAPI(cv::Mat*) cvGetDiag( const CvArr* arr, cv::Mat* submat,
+CVAPI(CvMat*) cvGetDiag( const CvArr* arr, CvMat* submat,
                             int diag CV_DEFAULT(0));
 
 /** low-level scalar <-> raw data conversion functions */
-CVAPI(void) cv::ScalarToRawData( const cv::Scalar* scalar, void* data, int type,
+CVAPI(void) cvScalarToRawData( const CvScalar* scalar, void* data, int type,
                               int extend_to_12 CV_DEFAULT(0) );
 
-CVAPI(void) cvRawDataToScalar( const void* data, int type, cv::Scalar* scalar );
+CVAPI(void) cvRawDataToScalar( const void* data, int type, CvScalar* scalar );
 
 /** @brief Creates a new matrix header but does not allocate the matrix data.
 
@@ -432,33 +432,33 @@ The function allocates a header for a multi-dimensional dense array. The array d
 allocated using cvCreateData or set explicitly to user-allocated data via cvSetData.
 @param dims Number of array dimensions
 @param sizes Array of dimension sizes
-@param type Type of array elements, see cv::Mat
+@param type Type of array elements, see cvCreateMat
  */
-CVAPI(cv::MatND*)  cv::MatNDHeader( int dims, const int* sizes, int type );
+CVAPI(CvMatND*)  cvCreateMatNDHeader( int dims, const int* sizes, int type );
 
 /** @brief Creates the header and allocates the data for a multi-dimensional dense array.
 
 This function call is equivalent to the following code:
 @code
-    cv::MatND* mat = cv::MatNDHeader(dims, sizes, type);
+    CvMatND* mat = cvCreateMatNDHeader(dims, sizes, type);
     cvCreateData(mat);
 @endcode
 @param dims Number of array dimensions. This must not exceed CV_MAX_DIM (32 by default, but can be
 changed at build time).
 @param sizes Array of dimension sizes.
-@param type Type of array elements, see cv::Mat .
+@param type Type of array elements, see cvCreateMat .
  */
-CVAPI(cv::MatND*)  cv::MatND( int dims, const int* sizes, int type );
+CVAPI(CvMatND*)  cvCreateMatND( int dims, const int* sizes, int type );
 
 /** @brief Initializes a pre-allocated multi-dimensional array header.
 
 @param mat A pointer to the array header to be initialized
 @param dims The number of array dimensions
 @param sizes An array of dimension sizes
-@param type Type of array elements, see cv::Mat
+@param type Type of array elements, see cvCreateMat
 @param data Optional data pointer assigned to the matrix header
  */
-CVAPI(cv::MatND*)  cvInitMatNDHeader( cv::MatND* mat, int dims, const int* sizes,
+CVAPI(CvMatND*)  cvInitMatNDHeader( CvMatND* mat, int dims, const int* sizes,
                                     int type, void* data CV_DEFAULT(NULL) );
 
 /** @brief Deallocates a multi-dimensional array.
@@ -472,13 +472,13 @@ reference counter reaches 0, it also deallocates the data. :
 @endcode
 @param mat Double pointer to the array
  */
-CV_INLINE  void  cvReleaseMatND( cv::MatND** mat )
+CV_INLINE  void  cvReleaseMatND( CvMatND** mat )
 {
-    cvReleaseMat( (cv::Mat**)mat );
+    cvReleaseMat( (CvMat**)mat );
 }
 
-/** Creates a copy of cv::MatND (except, may be, steps) */
-CVAPI(cv::MatND*) cvCloneMatND( const cv::MatND* mat );
+/** Creates a copy of CvMatND (except, may be, steps) */
+CVAPI(CvMatND*) cvCloneMatND( const CvMatND* mat );
 
 /** @brief Creates sparse array.
 
@@ -487,7 +487,7 @@ that is PtrND and other related functions will return 0 for every index.
 @param dims Number of array dimensions. In contrast to the dense matrix, the number of dimensions is
 practically unlimited (up to \f$2^{16}\f$ ).
 @param sizes Array of dimension sizes
-@param type Type of array elements. The same as for cv::Mat
+@param type Type of array elements. The same as for CvMat
  */
 CVAPI(CvSparseMat*)  cvCreateSparseMat( int dims, const int* sizes, int type );
 
@@ -570,7 +570,7 @@ typedef struct CvNArrayIterator
     CvSize size; /**< maximal common linear size: { width = size, height = 1 } */
     uchar* ptr[CV_MAX_ARR]; /**< pointers to the array slices */
     int stack[CV_MAX_DIM]; /**< for internal use */
-    cv::MatND* hdr[CV_MAX_ARR]; /**< pointers to the headers of the
+    CvMatND* hdr[CV_MAX_ARR]; /**< pointers to the headers of the
                                  matrices that are processed */
 }
 CvNArrayIterator;
@@ -583,7 +583,7 @@ CvNArrayIterator;
    (the function together with cvNextArraySlice is used for
     N-ari element-wise operations) */
 CVAPI(int) cvInitNArrayIterator( int count, CvArr** arrs,
-                                 const CvArr* mask, cv::MatND* stubs,
+                                 const CvArr* mask, CvMatND* stubs,
                                  CvNArrayIterator* array_iterator,
                                  int flags CV_DEFAULT(0) );
 
@@ -594,9 +594,9 @@ CVAPI(int) cvNextNArraySlice( CvNArrayIterator* array_iterator );
 /** @brief Returns type of array elements.
 
 The function returns type of the array elements. In the case of IplImage the type is converted to
-cv::Mat-like representation. For example, if the image has been created as:
+CvMat-like representation. For example, if the image has been created as:
 @code
-    IplImage* img = cvCreateImage(cvSize(640, 480), CV_8UC1_8U, 3);
+    IplImage* img = cvCreateImage(cvSize(640, 480), IPL_DEPTH_8U, 3);
 @endcode
 The code cvGetElemType(img) will return CV_8UC3.
 @param arr Input array
@@ -606,7 +606,7 @@ CVAPI(int) cvGetElemType( const CvArr* arr );
 /** @brief Return number of array dimensions
 
 The function returns the array dimensionality and the array of dimension sizes. In the case of
-IplImage or cv::Mat it always returns 2 regardless of number of image/matrix rows. For example, the
+IplImage or CvMat it always returns 2 regardless of number of image/matrix rows. For example, the
 following code calculates total number of array elements:
 @code
     int sizes[CV_MAX_DIM];
@@ -673,16 +673,16 @@ if the requested node does not exist (no new node is created by the functions).
 @param arr Input array
 @param idx0 The first zero-based component of the element index
  */
-CVAPI(cv::Scalar) cvGet1D( const CvArr* arr, int idx0 );
+CVAPI(CvScalar) cvGet1D( const CvArr* arr, int idx0 );
 /** @overload */
-CVAPI(cv::Scalar) cvGet2D( const CvArr* arr, int idx0, int idx1 );
+CVAPI(CvScalar) cvGet2D( const CvArr* arr, int idx0, int idx1 );
 /** @overload */
-CVAPI(cv::Scalar) cvGet3D( const CvArr* arr, int idx0, int idx1, int idx2 );
+CVAPI(CvScalar) cvGet3D( const CvArr* arr, int idx0, int idx1, int idx2 );
 /** @overload
 @param arr Input array
 @param idx Array of the element indices
 */
-CVAPI(cv::Scalar) cvGetND( const CvArr* arr, const int* idx );
+CVAPI(CvScalar) cvGetND( const CvArr* arr, const int* idx );
 
 /** @brief Return a specific element of single-channel 1D, 2D, 3D or nD array.
 
@@ -714,17 +714,17 @@ functions create the node if it does not exist yet.
 @param idx0 The first zero-based component of the element index
 @param value The assigned value
  */
-CVAPI(void) cvSet1D( CvArr* arr, int idx0, cv::Scalar value );
+CVAPI(void) cvSet1D( CvArr* arr, int idx0, CvScalar value );
 /** @overload */
-CVAPI(void) cvSet2D( CvArr* arr, int idx0, int idx1, cv::Scalar value );
+CVAPI(void) cvSet2D( CvArr* arr, int idx0, int idx1, CvScalar value );
 /** @overload */
-CVAPI(void) cvSet3D( CvArr* arr, int idx0, int idx1, int idx2, cv::Scalar value );
+CVAPI(void) cvSet3D( CvArr* arr, int idx0, int idx1, int idx2, CvScalar value );
 /** @overload
 @param arr Input array
 @param idx Array of the element indices
 @param value The assigned value
 */
-CVAPI(void) cvSetND( CvArr* arr, const int* idx, cv::Scalar value );
+CVAPI(void) cvSetND( CvArr* arr, const int* idx, CvScalar value );
 
 /** @brief Change a specific array element.
 
@@ -756,36 +756,36 @@ CVAPI(void) cvClearND( CvArr* arr, const int* idx );
 
 /** @brief Returns matrix header for arbitrary array.
 
-The function returns a matrix header for the input array that can be a matrix - cv::Mat, an image -
-IplImage, or a multi-dimensional dense array - cv::MatND (the third option is allowed only if
+The function returns a matrix header for the input array that can be a matrix - CvMat, an image -
+IplImage, or a multi-dimensional dense array - CvMatND (the third option is allowed only if
 allowND != 0) . In the case of matrix the function simply returns the input pointer. In the case of
-IplImage\* or cv::MatND it initializes the header structure with parameters of the current image ROI
-and returns &header. Because COI is not supported by cv::Mat, it is returned separately.
+IplImage\* or CvMatND it initializes the header structure with parameters of the current image ROI
+and returns &header. Because COI is not supported by CvMat, it is returned separately.
 
-The function provides an easy way to handle both types of arrays - IplImage and cv::Mat using the same
+The function provides an easy way to handle both types of arrays - IplImage and CvMat using the same
 code. Input array must have non-zero data pointer, otherwise the function will report an error.
 
 @note If the input array is IplImage with planar data layout and COI set, the function returns the
 pointer to the selected plane and COI == 0. This feature allows user to process IplImage structures
 with planar data layout, even though OpenCV does not support such images.
 @param arr Input array
-@param header Pointer to cv::Mat structure used as a temporary buffer
+@param header Pointer to CvMat structure used as a temporary buffer
 @param coi Optional output parameter for storing COI
-@param allowND If non-zero, the function accepts multi-dimensional dense arrays (cv::MatND\*) and
-returns 2D matrix (if cv::MatND has two dimensions) or 1D matrix (when cv::MatND has 1 dimension or
-more than 2 dimensions). The cv::MatND array must be continuous.
+@param allowND If non-zero, the function accepts multi-dimensional dense arrays (CvMatND\*) and
+returns 2D matrix (if CvMatND has two dimensions) or 1D matrix (when CvMatND has 1 dimension or
+more than 2 dimensions). The CvMatND array must be continuous.
 @sa cvGetImage, cvarrToMat.
  */
-CVAPI(cv::Mat*) cvGetMat( const CvArr* arr, cv::Mat* header,
+CVAPI(CvMat*) cvGetMat( const CvArr* arr, CvMat* header,
                        int* coi CV_DEFAULT(NULL),
                        int allowND CV_DEFAULT(0));
 
 /** @brief Returns image header for arbitrary array.
 
-The function returns the image header for the input array that can be a matrix (cv::Mat) or image
+The function returns the image header for the input array that can be a matrix (CvMat) or image
 (IplImage). In the case of an image the function simply returns the input pointer. In the case of
-cv::Mat it initializes an image_header structure with the parameters of the input matrix. Note that
-if we transform IplImage to cv::Mat using cvGetMat and then transform cv::Mat back to IplImage using
+CvMat it initializes an image_header structure with the parameters of the input matrix. Note that
+if we transform IplImage to CvMat using cvGetMat and then transform CvMat back to IplImage using
 this function, we will get different headers if the ROI is set in the original image.
 @param arr Input array
 @param image_header Pointer to IplImage structure used as a temporary buffer
@@ -800,14 +800,14 @@ well (though it can work with ordinary images and matrices) and change the numbe
 
 Below are the two samples from the cvReshape description rewritten using cvReshapeMatND:
 @code
-    IplImage* color_img = cvCreateImage(cvSize(320,240), CV_8UC1_8U, 3);
+    IplImage* color_img = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
     IplImage gray_img_hdr, *gray_img;
     gray_img = (IplImage*)cvReshapeMatND(color_img, sizeof(gray_img_hdr), &gray_img_hdr, 1, 0, 0);
     ...
     int size[] = { 2, 2, 2 };
-    cv::MatND* mat = cv::MatND(3, size, CV_32F);
-    cv::Mat row_header, *row;
-    row = (cv::Mat*)cvReshapeMatND(mat, sizeof(row_header), &row_header, 0, 1, 0);
+    CvMatND* mat = cvCreateMatND(3, size, CV_32F);
+    CvMat row_header, *row;
+    row = (CvMat*)cvReshapeMatND(mat, sizeof(row_header), &row_header, 0, 1, 0);
 @endcode
 In C, the header file for this function includes a convenient macro cvReshapeND that does away with
 the sizeof_header parameter. So, the lines containing the call to cvReshapeMatND in the examples
@@ -815,10 +815,10 @@ may be replaced as follow:
 @code
     gray_img = (IplImage*)cvReshapeND(color_img, &gray_img_hdr, 1, 0, 0);
     ...
-    row = (cv::Mat*)cvReshapeND(mat, &row_header, 0, 1, 0);
+    row = (CvMat*)cvReshapeND(mat, &row_header, 0, 1, 0);
 @endcode
 @param arr Input array
-@param sizeof_header Size of output header to distinguish between IplImage, cv::Mat and cv::MatND
+@param sizeof_header Size of output header to distinguish between IplImage, CvMat and CvMatND
 output headers
 @param header Output header to be filled
 @param new_cn New number of channels. new_cn = 0 means that the number of channels remains
@@ -839,22 +839,22 @@ CVAPI(CvArr*) cvReshapeMatND( const CvArr* arr,
 
 /** @brief Changes shape of matrix/image without copying data.
 
-The function initializes the cv::Mat header so that it points to the same data as the original array
+The function initializes the CvMat header so that it points to the same data as the original array
 but has a different shape - different number of channels, different number of rows, or both.
 
 The following example code creates one image buffer and two image headers, the first is for a
 320x240x3 image and the second is for a 960x240x1 image:
 @code
-    IplImage* color_img = cvCreateImage(cvSize(320,240), CV_8UC1_8U, 3);
-    cv::Mat gray_mat_hdr;
+    IplImage* color_img = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
+    CvMat gray_mat_hdr;
     IplImage gray_img_hdr, *gray_img;
     cvReshape(color_img, &gray_mat_hdr, 1);
     gray_img = cvGetImage(&gray_mat_hdr, &gray_img_hdr);
 @endcode
 And the next example converts a 3x3 matrix to a single 1x9 vector:
 @code
-    cv::Mat* mat = cv::Mat(3, 3, CV_32F);
-    cv::Mat row_header, *row;
+    CvMat* mat = cvCreateMat(3, 3, CV_32F);
+    CvMat row_header, *row;
     row = cvReshape(mat, &row_header, 0, 1);
 @endcode
 @param arr Input array
@@ -864,7 +864,7 @@ unchanged.
 @param new_rows New number of rows. 'new_rows = 0' means that the number of rows remains
 unchanged unless it needs to be changed according to new_cn value.
 */
-CVAPI(cv::Mat*) cvReshape( const CvArr* arr, cv::Mat* header,
+CVAPI(CvMat*) cvReshape( const CvArr* arr, CvMat* header,
                         int new_cn, int new_rows CV_DEFAULT(0) );
 
 /** Repeats source 2d array several times in both horizontal and
@@ -883,7 +883,7 @@ CVAPI(void)  cvCreateData( CvArr* arr );
 
 /** @brief Releases array data.
 
-The function releases the array data. In the case of cv::Mat or cv::MatND it simply calls
+The function releases the array data. In the case of CvMat or CvMatND it simply calls
 cvDecRefData(), that is the function can not deallocate external data. See also the note to
 cvCreateData .
 @param arr Array header
@@ -893,7 +893,7 @@ CVAPI(void)  cvReleaseData( CvArr* arr );
 /** @brief Assigns user data to the array header.
 
 The function assigns user data to the array header. Header should be initialized before using
-cv::MatHeader, cvCreateImageHeader, cv::MatNDHeader, cvInitMatHeader,
+cvCreateMatHeader, cvCreateImageHeader, cvCreateMatNDHeader, cvInitMatHeader,
 cvInitImageHeader or cvInitMatNDHeader.
 @param arr Array header
 @param data User data
@@ -966,13 +966,13 @@ If array arr is of IplImage type, then is ROI used, but COI must not be set.
 @param mask Operation mask, 8-bit single channel array; specifies elements of the destination
 array to be changed
  */
-CVAPI(void)  cvSet( CvArr* arr, cv::Scalar value,
+CVAPI(void)  cvSet( CvArr* arr, CvScalar value,
                     const CvArr* mask CV_DEFAULT(NULL) );
 
 /** @brief Clears the array.
 
-The function clears the array. In the case of dense arrays (cv::Mat, cv::MatND or IplImage),
-cvZero(array) is equivalent to array=cv::ScalarAll(0,0). In the case of sparse arrays all the
+The function clears the array. In the case of dense arrays (CvMat, CvMatND or IplImage),
+cvZero(array) is equivalent to cvSet(array,cvScalarAll(0),0). In the case of sparse arrays all the
 elements are removed.
 @param arr Array to be cleared
  */
@@ -1051,7 +1051,7 @@ CVAPI(void)  cvAdd( const CvArr* src1, const CvArr* src2, CvArr* dst,
                     const CvArr* mask CV_DEFAULT(NULL));
 
 /** dst(mask) = src(mask) + value */
-CVAPI(void)  cvAddS( const CvArr* src, cv::Scalar value, CvArr* dst,
+CVAPI(void)  cvAddS( const CvArr* src, CvScalar value, CvArr* dst,
                      const CvArr* mask CV_DEFAULT(NULL));
 
 /** dst(mask) = src1(mask) - src2(mask) */
@@ -1059,15 +1059,15 @@ CVAPI(void)  cvSub( const CvArr* src1, const CvArr* src2, CvArr* dst,
                     const CvArr* mask CV_DEFAULT(NULL));
 
 /** dst(mask) = src(mask) - value = src(mask) + (-value) */
-CV_INLINE  void  cvSubS( const CvArr* src, cv::Scalar value, CvArr* dst,
+CV_INLINE  void  cvSubS( const CvArr* src, CvScalar value, CvArr* dst,
                          const CvArr* mask CV_DEFAULT(NULL))
 {
-    cvAddS( src, cv::Scalar( -value.val[0], -value.val[1], -value.val[2], -value.val[3]),
+    cvAddS( src, cvScalar( -value.val[0], -value.val[1], -value.val[2], -value.val[3]),
             dst, mask );
 }
 
 /** dst(mask) = value - src(mask) */
-CVAPI(void)  cvSubRS( const CvArr* src, cv::Scalar value, CvArr* dst,
+CVAPI(void)  cvSubRS( const CvArr* src, CvScalar value, CvArr* dst,
                       const CvArr* mask CV_DEFAULT(NULL));
 
 /** dst(idx) = src1(idx) * src2(idx) * scale
@@ -1082,7 +1082,7 @@ CVAPI(void)  cvDiv( const CvArr* src1, const CvArr* src2,
                     CvArr* dst, double scale CV_DEFAULT(1));
 
 /** dst = src1 * scale + src2 */
-CVAPI(void)  cvScaleAdd( const CvArr* src1, cv::Scalar scale,
+CVAPI(void)  cvScaleAdd( const CvArr* src1, CvScalar scale,
                          const CvArr* src2, CvArr* dst );
 #define cvAXPY( A, real_scalar, B, C ) cvScaleAdd(A, cvRealScalar(real_scalar), B, C)
 
@@ -1110,7 +1110,7 @@ CVAPI(void) cvAnd( const CvArr* src1, const CvArr* src2,
                   CvArr* dst, const CvArr* mask CV_DEFAULT(NULL));
 
 /** dst(idx) = src(idx) & value */
-CVAPI(void) cvAndS( const CvArr* src, cv::Scalar value,
+CVAPI(void) cvAndS( const CvArr* src, CvScalar value,
                    CvArr* dst, const CvArr* mask CV_DEFAULT(NULL));
 
 /** dst(idx) = src1(idx) | src2(idx) */
@@ -1118,15 +1118,15 @@ CVAPI(void) cvOr( const CvArr* src1, const CvArr* src2,
                  CvArr* dst, const CvArr* mask CV_DEFAULT(NULL));
 
 /** dst(idx) = src(idx) | value */
-CVAPI(void) cvOrS( const CvArr* src, cv::Scalar value,
+CVAPI(void) cvOrS( const CvArr* src, CvScalar value,
                   CvArr* dst, const CvArr* mask CV_DEFAULT(NULL));
 
 /** dst(idx) = src1(idx) ^ src2(idx) */
-CVAPI(void) cvXor( const CvArr* src1, const CvArr* src2,
+CVAPI(void) cv::bitwise_xor( const CvArr* src1, const CvArr* src2,
                   CvArr* dst, const CvArr* mask CV_DEFAULT(NULL));
 
 /** dst(idx) = src(idx) ^ value */
-CVAPI(void) cvXorS( const CvArr* src, cv::Scalar value,
+CVAPI(void) cv::bitwise_xorS( const CvArr* src, CvScalar value,
                    CvArr* dst, const CvArr* mask CV_DEFAULT(NULL));
 
 /** dst(idx) = ~src(idx) */
@@ -1137,8 +1137,8 @@ CVAPI(void) cvInRange( const CvArr* src, const CvArr* lower,
                       const CvArr* upper, CvArr* dst );
 
 /** dst(idx) = lower <= src(idx) < upper */
-CVAPI(void) cvInRangeS( const CvArr* src, cv::Scalar lower,
-                       cv::Scalar upper, CvArr* dst );
+CVAPI(void) cvInRangeS( const CvArr* src, CvScalar lower,
+                       CvScalar upper, CvArr* dst );
 
 #define CV_CMP_EQ   0
 #define CV_CMP_GT   1
@@ -1172,8 +1172,8 @@ CVAPI(void) cvMaxS( const CvArr* src, double value, CvArr* dst );
 CVAPI(void) cvAbsDiff( const CvArr* src1, const CvArr* src2, CvArr* dst );
 
 /** dst(x,y,c) = abs(src(x,y,c) - value(c)) */
-CVAPI(void) cvAbsDiffS( const CvArr* src, CvArr* dst, cv::Scalar value );
-#define cvAbs( src, dst ) cvAbsDiffS( (src), (dst), cv::ScalarAll(0))
+CVAPI(void) cvAbsDiffS( const CvArr* src, CvArr* dst, CvScalar value );
+#define cvAbs( src, dst ) cvAbsDiffS( (src), (dst), cvScalarAll(0))
 
 /****************************************************************************************\
 *                                Math operations                                         *
@@ -1242,7 +1242,7 @@ it is the standard deviation of the random numbers.
 @sa randu, randn, RNG::fill.
  */
 CVAPI(void) cvRandArr( CvRNG* rng, CvArr* arr, int dist_type,
-                      cv::Scalar param1, cv::Scalar param2 );
+                      CvScalar param1, CvScalar param2 );
 
 CVAPI(void) cvRandShuffle( CvArr* mat, CvRNG* rng,
                            double iter_factor CV_DEFAULT(1.));
@@ -1257,10 +1257,10 @@ CVAPI(void) cvSort( const CvArr* src, CvArr* dst CV_DEFAULT(NULL),
                     int flags CV_DEFAULT(0));
 
 /** Finds real roots of a cubic equation */
-CVAPI(int) cvSolveCubic( const cv::Mat* coeffs, cv::Mat* roots );
+CVAPI(int) cvSolveCubic( const CvMat* coeffs, CvMat* roots );
 
 /** Finds all real and complex roots of a polynomial equation */
-CVAPI(void) cvSolvePoly(const cv::Mat* coeffs, cv::Mat *roots2,
+CVAPI(void) cvSolvePoly(const CvMat* coeffs, CvMat *roots2,
       int maxiter CV_DEFAULT(20), int fig CV_DEFAULT(100));
 
 /****************************************************************************************\
@@ -1280,8 +1280,8 @@ or:
 CVAPI(void)  cvCrossProduct( const CvArr* src1, const CvArr* src2, CvArr* dst );
 
 /** Matrix transform: dst = A*B + C, C is optional */
-#define cv::MatMulAdd( src1, src2, src3, dst ) cvGEMM( (src1), (src2), 1., (src3), 1., (dst), 0 )
-#define cv::MatMul( src1, src2, dst )  cv::MatMulAdd( (src1), (src2), NULL, (dst))
+#define cvMatMulAdd( src1, src2, src3, dst ) cvGEMM( (src1), (src2), 1., (src3), 1., (dst), 0 )
+#define cvMatMul( src1, src2, dst )  cvMatMulAdd( (src1), (src2), NULL, (dst))
 
 #define CV_GEMM_A_T 1
 #define CV_GEMM_B_T 2
@@ -1291,18 +1291,18 @@ CVAPI(void)  cvCrossProduct( const CvArr* src1, const CvArr* src2, CvArr* dst );
 CVAPI(void)  cvGEMM( const CvArr* src1, const CvArr* src2, double alpha,
                      const CvArr* src3, double beta, CvArr* dst,
                      int tABC CV_DEFAULT(0));
-#define cv::MatMulAddEx cvGEMM
+#define cvMatMulAddEx cvGEMM
 
 /** Transforms each element of source array and stores
    resultant vectors in destination array */
 CVAPI(void)  cvTransform( const CvArr* src, CvArr* dst,
-                          const cv::Mat* transmat,
-                          const cv::Mat* shiftvec CV_DEFAULT(NULL));
-#define cv::MatMulAddS cvTransform
+                          const CvMat* transmat,
+                          const CvMat* shiftvec CV_DEFAULT(NULL));
+#define cvMatMulAddS cvTransform
 
 /** Does perspective transform on every element of input array */
 CVAPI(void)  cvPerspectiveTransform( const CvArr* src, CvArr* dst,
-                                     const cv::Mat* mat );
+                                     const CvMat* mat );
 
 /** Calculates (A-delta)*(A-delta)^T (order=0) or (A-delta)^T*(A-delta) (order=1) */
 CVAPI(void) cvMulTransposed( const CvArr* src, CvArr* dst, int order,
@@ -1314,7 +1314,7 @@ CVAPI(void)  cvTranspose( const CvArr* src, CvArr* dst );
 #define cvT cvTranspose
 
 /** Completes the symmetric matrix from the lower (LtoR=0) or from the upper (LtoR!=0) part */
-CVAPI(void)  cvCompleteSymm( cv::Mat* matrix, int LtoR CV_DEFAULT(0) );
+CVAPI(void)  cvCompleteSymm( CvMat* matrix, int LtoR CV_DEFAULT(0) );
 
 /** Mirror array data around horizontal (flip=0),
    vertical (flip=1) or both(flip=-1) axises:
@@ -1359,7 +1359,7 @@ CVAPI(int)  cvSolve( const CvArr* src1, const CvArr* src2, CvArr* dst,
 CVAPI(double) cvDet( const CvArr* mat );
 
 /** Calculates trace of the matrix (sum of elements on the main diagonal) */
-CVAPI(cv::Scalar) cvTrace( const CvArr* mat );
+CVAPI(CvScalar) cvTrace( const CvArr* mat );
 
 /** Finds eigen values and vectors of a symmetric matrix */
 CVAPI(void)  cvEigenVV( CvArr* mat, CvArr* evects, CvArr* evals,
@@ -1372,7 +1372,7 @@ CVAPI(void)  cvEigenVV( CvArr* mat, CvArr* evects, CvArr* evals,
 //                                int lowindex, int highindex );
 
 /** Makes an identity matrix (mat_ij = i == j) */
-CVAPI(void)  cvSetIdentity( CvArr* mat, cv::Scalar value CV_DEFAULT(cvRealScalar(1)) );
+CVAPI(void)  cvSetIdentity( CvArr* mat, CvScalar value CV_DEFAULT(cvRealScalar(1)) );
 
 /** Fills matrix with given range of numbers */
 CVAPI(CvArr*)  cvRange( CvArr* mat, double start, double end );
@@ -1431,22 +1431,22 @@ CVAPI(double)  cvMahalanobis( const CvArr* vec1, const CvArr* vec2, const CvArr*
 \****************************************************************************************/
 
 /** Finds sum of array elements */
-CVAPI(cv::Scalar)  cvSum( const CvArr* arr );
+CVAPI(CvScalar)  cvSum( const CvArr* arr );
 
 /** Calculates number of non-zero pixels */
 CVAPI(int)  cvCountNonZero( const CvArr* arr );
 
 /** Calculates mean value of array elements */
-CVAPI(cv::Scalar)  cvAvg( const CvArr* arr, const CvArr* mask CV_DEFAULT(NULL) );
+CVAPI(CvScalar)  cvAvg( const CvArr* arr, const CvArr* mask CV_DEFAULT(NULL) );
 
 /** Calculates mean and standard deviation of pixel values */
-CVAPI(void)  cvAvgSdv( const CvArr* arr, cv::Scalar* mean, cv::Scalar* std_dev,
+CVAPI(void)  cvAvgSdv( const CvArr* arr, CvScalar* mean, CvScalar* std_dev,
                        const CvArr* mask CV_DEFAULT(NULL) );
 
 /** Finds global minimum, maximum and their positions */
 CVAPI(void)  cvMinMaxLoc( const CvArr* arr, double* min_val, double* max_val,
-                          cv::Point* min_loc CV_DEFAULT(NULL),
-                          cv::Point* max_loc CV_DEFAULT(NULL),
+                          CvPoint* min_loc CV_DEFAULT(NULL),
+                          CvPoint* max_loc CV_DEFAULT(NULL),
                           const CvArr* mask CV_DEFAULT(NULL) );
 
 /** @anchor core_c_NormFlags
@@ -2133,7 +2133,7 @@ Below is the code that creates the YAML file shown in the CvFileStorage descript
 
     int main( int argc, char** argv )
     {
-        cv::Mat* mat = cv::Mat( 3, 3, CV_32F );
+        CvMat* mat = cvCreateMat( 3, 3, CV_32F );
         CvFileStorage* fs = cvOpenFileStorage( "example.yml", 0, CV_STORAGE_WRITE );
 
         cvSetIdentity( mat );
@@ -2569,7 +2569,7 @@ CVAPI(void) cvRelease( void** struct_ptr );
 /** @brief Makes a clone of an object.
 
 The function finds the type of a given object and calls clone with the passed object. Of course, if
-you know the object type, for example, struct_ptr is cv::Mat\*, it is faster to call the specific
+you know the object type, for example, struct_ptr is CvMat\*, it is faster to call the specific
 function, like cvCloneMat.
 @param struct_ptr The object to clone
  */
@@ -2735,7 +2735,7 @@ namespace cv
 
 /////////////////////////////////////////// glue ///////////////////////////////////////////
 
-//! converts array (cv::Mat or IplImage) to cv::Mat
+//! converts array (CvMat or IplImage) to cv::Mat
 CV_EXPORTS Mat cvarrToMat(const CvArr* arr, bool copyData=false,
                           bool allowND=true, int coiMode=0,
                           AutoBuffer<double>* buf=0);
@@ -2746,18 +2746,18 @@ static inline Mat cvarrToMatND(const CvArr* arr, bool copyData=false, int coiMod
 }
 
 
-//! extracts Channel of Interest from cv::Mat or IplImage and makes cv::Mat out of it.
+//! extracts Channel of Interest from CvMat or IplImage and makes cv::Mat out of it.
 CV_EXPORTS void extractImageCOI(const CvArr* arr, OutputArray coiimg, int coi=-1);
-//! inserts single-channel cv::Mat into a multi-channel cv::Mat or IplImage
+//! inserts single-channel cv::Mat into a multi-channel CvMat or IplImage
 CV_EXPORTS void insertImageCOI(InputArray coiimg, CvArr* arr, int coi=-1);
 
 
 
 ////// specialized implementations of DefaultDeleter::operator() for classic OpenCV types //////
 
-template<> struct DefaultDeleter<cv::Mat>{ CV_EXPORTS void operator ()(cv::Mat* obj) const; };
+template<> struct DefaultDeleter<CvMat>{ CV_EXPORTS void operator ()(CvMat* obj) const; };
 template<> struct DefaultDeleter<IplImage>{ CV_EXPORTS void operator ()(IplImage* obj) const; };
-template<> struct DefaultDeleter<cv::MatND>{ CV_EXPORTS void operator ()(cv::MatND* obj) const; };
+template<> struct DefaultDeleter<CvMatND>{ CV_EXPORTS void operator ()(CvMatND* obj) const; };
 template<> struct DefaultDeleter<CvSparseMat>{ CV_EXPORTS void operator ()(CvSparseMat* obj) const; };
 template<> struct DefaultDeleter<CvMemStorage>{ CV_EXPORTS void operator ()(CvMemStorage* obj) const; };
 
@@ -2999,7 +2999,7 @@ template<typename _Tp> inline void Seq<_Tp>::insert(int idx, const _Tp& elem)
 
 template<typename _Tp> inline void Seq<_Tp>::insert(int idx, const _Tp* elems, size_t count)
 {
-    cv::Mat m = cv::Mat(1, count, DataType<_Tp>::type, elems);
+    CvMat m = cvMat(1, count, DataType<_Tp>::type, elems);
     seqInsertSlice(seq, idx, &m);
 }
 

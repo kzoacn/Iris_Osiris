@@ -104,7 +104,7 @@ enum Code {
     StsObjectNotFound=         -204, //!< request can't be completed
     StsUnmatchedFormats=       -205, //!< formats of input/output arrays differ
     StsBadFlag=                -206, //!< flag is wrong or not supported
-    StsBadPoint=               -207, //!< bad cv::Point
+    StsBadPoint=               -207, //!< bad CvPoint
     StsBadMask=                -208, //!< bad format of mask (neither 8uC1 nor 8sC1)
     StsUnmatchedSizes=         -209, //!< sizes of input/output structures do not match
     StsUnsupportedFormat=      -210, //!< the data format/type is not supported by the function

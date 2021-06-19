@@ -53,16 +53,16 @@ namespace osiris
 
         // Default value for maxIrisDiameter if user did not specify it
         if ( maxIrisDiameter == 0 )
-        {
-            maxIrisDiameter = min(pSrc->height,pSrc->width) ;
+        {   
+            maxIrisDiameter = min(pSrc.size().height,pSrc.size().width) ;
         }
 
         // Change maxIrisDiameter if it is too big relative to image sizes
-        else if ( maxIrisDiameter > (check_size = floor((float)min(pSrc->height,pSrc->width))) )
+        else if ( maxIrisDiameter > (check_size = floor((float)min(pSrc.size().height,pSrc.size().width))) )
         {            
             cout << "Warning in function segment : maxIrisDiameter = " << maxIrisDiameter ;
             cout << " is replaced by " << check_size ;
-            cout << " because image size is " << pSrc->width << "x" << pSrc->height << endl ;
+            cout << " because image size is " << pSrc.size().width << "x" << pSrc.size().height << endl ;
             maxIrisDiameter = check_size ;
         }
 
@@ -129,12 +129,12 @@ namespace osiris
 
         // Fill the holes in an area surrounding pupil
         cv::Mat clone_src = pSrc.clone() ;
-        cvSetImageROI(clone_src,cvRect(rPupil.getCenter().x-3.0/4.0*maxIrisDiameter/2.0,
+        
+        cv::Mat ImageROI=clone_src(cv::Rect(rPupil.getCenter().x-3.0/4.0*maxIrisDiameter/2.0,
                                        rPupil.getCenter().y-3.0/4.0*maxIrisDiameter/2.0,
                                        3.0/4.0*maxIrisDiameter,
                                        3.0/4.0*maxIrisDiameter)) ;
-        fillWhiteHoles(clone_src,clone_src) ;
-        cvResetImageROI(clone_src) ;
+        fillWhiteHoles(clone_src,clone_src) ; 
 
         // Will contain samples of angles, in radians
         vector<float> theta ;
@@ -253,7 +253,7 @@ namespace osiris
         cvReleaseStructuringElement(&struct_element) ;
 
         // dilate(mask_iris) - dilate(mask_pupil)
-        cvXor(mask_iris2,mask_pupil2,mask_iris2) ;
+        cv::bitwise_xor(mask_iris2,mask_pupil2,mask_iris2) ;
         
         theta.clear() ;
         theta_step = 360.0 / OSI_PI / rIris.getRadius() ;
@@ -281,7 +281,7 @@ namespace osiris
         
         mask_iris=0 ;
         drawContour(mask_iris,iris_accurate_contour,cv::Scalar(255),-1) ;
-        cvXor(mask_iris,mask_pupil,mask_iris) ;
+        cv::bitwise_xor(mask_iris,mask_pupil,mask_iris) ;
 
 
         // Refine the mask by removing some noise
@@ -289,24 +289,25 @@ namespace osiris
 
         // Build a safe area = avoid occlusions
         cv::Mat safe_area = mask_iris.clone() ;
-        cvRectangle(safe_area,cv::Point(0,0),cv::Point(safe_area->width-1,rPupil.getCenter().y),cv::Scalar(0),-1) ;
-        cvRectangle(safe_area,cv::Point(0,rPupil.getCenter().y+rPupil.getRadius()),
-                                      cv::Point(safe_area->width-1,safe_area->height-1),cv::Scalar(0),-1) ;
+        cv::rectangle(safe_area,cv::Point(0,0),cv::Point(safe_area.size().width-1,rPupil.getCenter().y),cv::Scalar(0),-1) ;
+        cv::rectangle(safe_area,cv::Point(0,rPupil.getCenter().y+rPupil.getRadius()),
+                                      cv::Point(safe_area.size().width-1,safe_area.size().height-1),cv::Scalar(0),-1) ;
         struct_element = cvCreateStructuringElementEx(11,11,5,5,CV_SHAPE_ELLIPSE) ;
         //cvMorphologyEx(safe_area,safe_area,safe_area,struct_element,CV_MOP_ERODE) ;
-        cvErode(safe_area,safe_area,struct_element) ;
+        cv::erode(safe_area,safe_area,struct_element) ;
+        
         cvReleaseStructuringElement(&struct_element) ;
 
         // Compute the mean and the variance of iris texture inside safe area
         //double iris_mean = cvMean(pSrc,safe_area) ;
-		cv::Scalar iris_mean = cvAvg(pSrc, safe_area);
+		cv::Scalar iris_mean = cv::mean(pSrc, safe_area);
         cv::Mat variance = cv::Mat(pSrc.size(),CV_32FC1) ;
-        cvConvert(pSrc,variance) ;
+        pSrc.copyTo(variance) ; 
         //cvSubS(variance,cv::Scalar(iris_mean),variance,safe_area) ;
-		cvSubS(variance, iris_mean, variance, safe_area);
-        cvMul(variance,variance,variance) ;
+		cv::subtract(variance, iris_mean, variance, safe_area);
+        cv::multiply(variance,variance,variance) ;
         //double iris_variance = sqrt(cvMean(variance,safe_area)) ;
-		cv::Scalar irisvariance = cvAvg(variance, safe_area);
+		cv::Scalar irisvariance = cv::mean(variance, safe_area);
 		double iris_variance = sqrt(irisvariance.val[0]);
         
         
@@ -314,18 +315,22 @@ namespace osiris
         // Build mask of noise : |I-mean| > 2.35 * variance
         cv::Mat mask_noise = pSrc.clone() ;
         //cvAbsDiffS(pSrc,mask_noise,cv::Scalar(iris_mean)) ;
-		cvAbsDiffS(pSrc, mask_noise, iris_mean);
-        cvThreshold(mask_noise,mask_noise,2.35*iris_variance,255,CV_THRESH_BINARY) ;
+		cv::absdiff(pSrc, mask_noise, iris_mean);
+        
+        
+        cv::threshold(mask_noise,mask_noise,2.35*iris_variance,255,cv::THRESH_BINARY) ;
         cv::bitwise_and(mask_iris,mask_noise,mask_noise) ;
 
         // Fusion with accurate contours
         cv::Mat accurate_contours = mask_iris.clone() ;
         struct_element = cvCreateStructuringElementEx(3,3,1,1,CV_SHAPE_ELLIPSE) ;
         cvMorphologyEx(accurate_contours,accurate_contours,accurate_contours,struct_element,CV_MOP_GRADIENT) ;
+        //cv::morphologyEx(accurate_contours,accurate_contours,accurate_contours,struct_element,) ;
+        
         cvReleaseStructuringElement(&struct_element) ;
         reconstructMarkerByMask(accurate_contours,mask_noise,mask_noise) ;
         
-        cvXor(mask_iris,mask_noise,pMask) ;
+        cv::bitwise_xor(mask_iris,mask_noise,pMask) ;
         
         // Release memory
         
@@ -351,29 +356,29 @@ namespace osiris
         pDst=0 ;
 
         // Loop on columns of normalized src
-        for ( int j = 0 ; j < pDst->width ; j++ )
+        for ( int j = 0 ; j < pDst->size().width ; j++ )
         {
             // One column correspond to an angle teta
-            theta = (float) j / pDst->width * 2 * OSI_PI ;
+            theta = (float) j / pDst->size().width * 2 * OSI_PI ;
 
             // Coordinates relative to both centers : iris and pupil
             point_pupil = convertPolarToCartesian(rPupil.getCenter(),rPupil.getRadius(),theta) ;
             point_iris = convertPolarToCartesian(rIris.getCenter(),rIris.getRadius(),theta) ;
 
             // Loop on lines of normalized src
-            for ( int i = 0 ; i < pDst->height ; i++ )
+            for ( int i = 0 ; i < pDst->size().height ; i++ )
             {    
                 // The radial parameter
-                radius = (float) i / pDst->height ;
+                radius = (float) i / pDst->size().height ;
 
                 // Coordinates relative to both radii : iris and pupil
                 x = (1-radius) * point_pupil.x + radius * point_iris.x ;
                 y = (1-radius) * point_pupil.y + radius * point_iris.y ;
 
                 // Do not exceed src size
-                if ( x>=0 && x<pSrc->width && y>=0 && y<pSrc->height )
+                if ( x>=0 && x<pSrc->size().width && y>=0 && y<pSrc->size().height )
                 {
-                    ((uchar*)(pDst->imageData+i*pDst->widthStep))[j] = ((uchar*)(pSrc->imageData+y*pSrc->widthStep))[x] ;
+                    ((uchar*)(pDst->imageData+i*pDst->size().widthStep))[j] = ((uchar*)(pSrc->imageData+y*pSrc->size().widthStep))[x] ;
                 }
                 
             }
@@ -399,29 +404,29 @@ namespace osiris
         pDst=0 ;
 
         // Loop on columns of normalized src
-        for ( int j = 0 ; j < pDst->width ; j++ )
+        for ( int j = 0 ; j < pDst->size().width ; j++ )
         {
             // One column correspond to an angle teta
-            theta = (float) j / pDst->width * 2 * OSI_PI ;
+            theta = (float) j / pDst->size().width * 2 * OSI_PI ;
 
 			// Interpolate pupil and iris radii from coarse contours
 			point_pupil = interpolate(rPupilCoarseContour,rThetaCoarsePupil,theta) ;
 			point_iris = interpolate(rIrisCoarseContour,rThetaCoarseIris,theta) ;
 
             // Loop on lines of normalized src
-            for ( int i = 0 ; i < pDst->height ; i++ )
+            for ( int i = 0 ; i < pDst->size().height ; i++ )
             {    
                 // The radial parameter
-                radius = (float) i / pDst->height ;
+                radius = (float) i / pDst->size().height ;
 
                 // Coordinates relative to both radii : iris and pupil
                 x = (1-radius) * point_pupil.x + radius * point_iris.x ;
                 y = (1-radius) * point_pupil.y + radius * point_iris.y ;
 
                 // Do not exceed src size
-                if ( x>=0 && x<pSrc->width && y>=0 && y<pSrc->height )
+                if ( x>=0 && x<pSrc->size().width && y>=0 && y<pSrc->size().height )
                 {
-                    ((uchar*)(pDst->imageData+i*pDst->widthStep))[j] = ((uchar*)(pSrc->imageData+y*pSrc->widthStep))[x] ;
+                    ((uchar*)(pDst->imageData+i*pDst->size().widthStep))[j] = ((uchar*)(pSrc->imageData+y*pSrc->size().widthStep))[x] ;
                 }
                 
             }
@@ -471,15 +476,15 @@ namespace osiris
                                         cv::Mat pDst ,
                                   const vector<cv::Mat*> & rFilters )
     {
-        // Compute the maximum width of the filters        
-        int max_width = 0 ;
+        // Compute the maximum size().width of the filters        
+        int max_size().width = 0 ;
         for ( int f = 0 ; f < rFilters.size() ; f++ )
-            if (rFilters[f]->cols > max_width)
-                max_width = rFilters[f]->cols ;
-        max_width = (max_width-1)/2 ;
+            if (rFilters[f]->cols > max_size().width)
+                max_size().width = rFilters[f]->cols ;
+        max_size().width = (max_size().width-1)/2 ;
         
         // Add wrapping borders on the left and right of image for convolution
-        cv::Mat resized = addBorders(pSrc,max_width) ;
+        cv::Mat resized = addBorders(pSrc,max_size().width) ;
 
         // Temporary images to store the result of convolution
         cv::Mat img1 = cv::Mat(resized.size(),CV_32FC1) ;
@@ -495,8 +500,8 @@ namespace osiris
             cvThreshold(img1,img2,0,255,CV_THRESH_BINARY) ;
 
             // Form the iris code
-            cvSetImageROI(img2,cvRect(max_width,0,pSrc->width,pSrc->height)) ;
-            cvSetImageROI(pDst,cvRect(0,f*pSrc->height,pSrc->width,pSrc->height)) ;
+            cvSetImageROI(img2,cv::Rect(max_size().width,0,pSrc->size().width,pSrc->size().height)) ;
+            cvSetImageROI(pDst,cv::Rect(0,f*pSrc->size().height,pSrc->size().width,pSrc->size().height)) ;
             cvCopy(img2,pDst,NULL) ;
             cvResetImageROI(img2) ;
             cvResetImageROI(pDst) ;
@@ -528,8 +533,8 @@ namespace osiris
         // Shift image1, and compare to image2
         for ( int s = -shift ; s <= shift ; s++ )
         {
-            cvSetImageROI(shifted,cvRect(shift+s,0,image1->width,image1->height)) ;            
-            cvXor(shifted,image2,result,mask) ;
+            cvSetImageROI(shifted,cv::Rect(shift+s,0,image1->size().width,image1->size().height)) ;            
+            cv::bitwise_xor(shifted,image2,result,mask) ;
             cvResetImageROI(shifted) ;
             float mean = (cvSum(result).val[0])/(cvSum(mask).val[0]) ;
             score = min(score,mean) ;
@@ -566,23 +571,23 @@ namespace osiris
 
     // Add left and right borders on an unwrapped image
     cv::Mat OsiProcessings::addBorders ( const cv::Mat pImage ,
-                                                  int width )
+                                                  int size().width )
     {
         // Result image
-        cv::Mat result = cv::Mat(cv::Size(pImage->width+2*width,pImage->height),pImage->depth,pImage->nChannels) ;
+        cv::Mat result = cv::Mat(cv::Size(pImage->size().width+2*size().width,pImage->size().height),pImage->depth,pImage->nChannels) ;
         
         // Copy the image in the center
-        cvCopyMakeBorder(pImage,result,cv::Point(width,0),IPL_BORDER_REPLICATE,cv::ScalarAll(0)) ;    
+        cvCopyMakeBorder(pImage,result,cv::Point(size().width,0),IPL_BORDER_REPLICATE,cv::ScalarAll(0)) ;    
 
         // Create the borders left and right assuming wrapping
-        for ( int i = 0 ; i < pImage->height ; i++ )
+        for ( int i = 0 ; i < pImage->size().height ; i++ )
         {
-            for ( int j = 0 ; j < width ; j++ )
+            for ( int j = 0 ; j < size().width ; j++ )
             {
-                ((uchar *)(result->imageData + i*result->widthStep))[j] = 
-                ((uchar *)(pImage->imageData + i*pImage->widthStep))[pImage->width-width+j] ;
-                ((uchar *)(result->imageData + i*result->widthStep))[result->width-width+j] = 
-                ((uchar *)(pImage->imageData + i*pImage->widthStep))[j] ;
+                ((uchar *)(result->imageData + i*result->size().widthStep))[j] = 
+                ((uchar *)(pImage->imageData + i*pImage->size().widthStep))[pImage->size().width-size().width+j] ;
+                ((uchar *)(result->imageData + i*result->size().widthStep))[result->size().width-size().width+j] = 
+                ((uchar *)(pImage->imageData + i*pImage->size().widthStep))[j] ;
             }
         }
 
@@ -605,16 +610,16 @@ namespace osiris
         // Default value for maxPupilDiameter, if user did not specify it
         if ( maxPupilDiameter == 0 )
         {
-            maxPupilDiameter = min(pSrc->height,pSrc->width) * OSI_MAX_RATIO_PUPIL_IRIS ;
+            maxPupilDiameter = min(pSrc->size().height,pSrc->size().width) * OSI_MAX_RATIO_PUPIL_IRIS ;
         }
 
         // Change maxPupilDiameter if it is too big relative to the image size and the ratio pupil/iris
-        else if ( maxPupilDiameter > min(pSrc->height,pSrc->width) * OSI_MAX_RATIO_PUPIL_IRIS )
+        else if ( maxPupilDiameter > min(pSrc->size().height,pSrc->size().width) * OSI_MAX_RATIO_PUPIL_IRIS )
         {
-            int newmaxPupilDiameter = floor(min(pSrc->height,pSrc->width)*OSI_MAX_RATIO_PUPIL_IRIS) ;
+            int newmaxPupilDiameter = floor(min(pSrc->size().height,pSrc->size().width)*OSI_MAX_RATIO_PUPIL_IRIS) ;
             cout << "Warning in function detectPupil : maxPupilDiameter = " << maxPupilDiameter ;
             cout << " is replaced by " << newmaxPupilDiameter ;
-            cout << " because image size is " << pSrc->width << "x" << pSrc->height ;
+            cout << " because image size is " << pSrc->size().width << "x" << pSrc->size().height ;
             cout << " and ratio pupil/iris is generally lower than " << OSI_MAX_RATIO_PUPIL_IRIS << endl ;
             maxPupilDiameter = newmaxPupilDiameter ;
         }   
@@ -643,7 +648,7 @@ namespace osiris
 
         // Resize image (downsample)
         float scale = (float) OSI_SMALLEST_PUPIL / minPupilDiameter ;
-        cv::Mat resized = cv::Mat(cv::Size(pSrc->width*scale,pSrc->height*scale),pSrc->depth,1) ;
+        cv::Mat resized = cv::Mat(cv::Size(pSrc->size().width*scale,pSrc->size().height*scale),pSrc->depth,1) ;
         cvResize(pSrc,resized) ;
 
         // Rescale sizes
@@ -712,7 +717,7 @@ namespace osiris
         // Multi resolution of radius
         for ( int r = (OSI_SMALLEST_PUPIL-1)/2 ; r < (maxPupilDiameter-1)/2 ; r++ )
         {
-            // Centred ring with radius = r and width = 2
+            // Centred ring with radius = r and size().width = 2
             mask=0 ;
             cv::circle(*mask,cv::Point((filter_size-1)/2,(filter_size-1)/2),r,cv::Scalar(1),2) ;
 
@@ -752,8 +757,8 @@ namespace osiris
         }
 
         // Rescale circle        
-        int x = ( (float) ( rPupil.getCenter().x * (pSrc->width-1) ) ) / (filled->width-1) + (float)((1.0/scale)-1)/2  ;
-        int y = ( (float) ( rPupil.getCenter().y * (pSrc->height-1) ) ) / (filled->height-1) + (float)((1.0/scale)-1)/2 ;
+        int x = ( (float) ( rPupil.getCenter().x * (pSrc->size().width-1) ) ) / (filled->size().width-1) + (float)((1.0/scale)-1)/2  ;
+        int y = ( (float) ( rPupil.getCenter().y * (pSrc->size().height-1) ) ) / (filled->size().height-1) + (float)((1.0/scale)-1)/2 ;
         int r = rPupil.getRadius() / scale ;
         rPupil.setCircle(x,y,r) ;
         
@@ -810,31 +815,31 @@ namespace osiris
 
     // Fill the white holes surrounded by dark pixels, such as specular reflection inside pupil area
     void OsiProcessings::fillWhiteHoles ( const cv::Mat pSrc ,
+                                            const cv::Mat roi,
                                                 cv::Mat pDst )
     {
         int width , height ;
-        if ( pSrc->roi )
+        if ( !roi.empty() )
         {
-            width = pSrc->roi->width ;
-            height = pSrc->roi->height ;
+            width = roi.size().width ;
+            height = roi.size().height ;
         }
         else
         {
-            width = pSrc->width ;
-            height = pSrc->height ;
+            width = pSrc.size().width ;
+            height = pSrc.size().height ;
         }
 
         // Mask for reconstruction : pSrc + borders=0
-        cv::Mat mask = cv::Mat(cv::Size(width+2,height+2),pSrc->depth,1) ;
+        cv::Mat mask = cv::Mat(cv::Size(width+2,height+2),pSrc.depth(),1) ;
         mask=0 ;
-        cvSetImageROI(mask,cvRect(1,1,width,height)) ;
-        cvCopy(pSrc,mask) ;
-        cvResetImageROI(mask) ;
+        cv::Mat ImageROI=mask(cv::Rect(1,1,width,height)) ;
+        pSrc.copyTo(ImageROI) ;
 
         // Marker for reconstruction : all=0 + borders=255
         cv::Mat marker = mask.clone() ;
         marker=0 ;
-        cvRectangle(marker,cv::Point(1,1),cv::Point(width+1,height+1),cv::Scalar(255)) ;
+        cv::rectangle(marker,cv::Point(1,1),cv::Point(width+1,height+1),cv::Scalar(255)) ;
 
         // Temporary result of reconstruction
         cv::Mat result = mask.clone() ;
@@ -843,8 +848,8 @@ namespace osiris
         reconstructMarkerByMask(marker,mask,result) ;
 
         // Remove borders
-        cvSetImageROI(result,cvRect(1,1,width,height)) ;
-        cvCopy(result,pDst) ;
+        ImageROI=result(cv::Rect(1,1,width,height)) ;
+        result.copyTo(pDst) ;
 
         // Release memory
         
@@ -906,17 +911,17 @@ namespace osiris
         result=0 ;
 
         // Loop on columns of normalized image
-        for ( int j = 0 ; j < result->width ; j++ )
+        for ( int j = 0 ; j < result->size().width ; j++ )
         {
             // Loop on lines of normalized image
-            for ( int i = 0 ; i < result->height ; i++ )
+            for ( int i = 0 ; i < result->size().height ; i++ )
             {
                 cv::Point point = convertPolarToCartesian(rCenter,minRadius+i,rTheta[j]) ;
 
                 // Do not exceed image size
-                if ( point.x >= 0 && point.x < pSrc->width && point.y >= 0 && point.y < pSrc->height )
-                    ((uchar *)(result->imageData+i*result->widthStep))[j] =
-                    ((uchar *)(pSrc->imageData+point.y*pSrc->widthStep))[point.x] ;
+                if ( point.x >= 0 && point.x < pSrc->size().width && point.y >= 0 && point.y < pSrc->size().height )
+                    ((uchar *)(result->imageData+i*result->size().widthStep))[j] =
+                    ((uchar *)(pSrc->imageData+point.y*pSrc->size().widthStep))[point.x] ;
             }
         }
         return result ;
@@ -941,7 +946,7 @@ namespace osiris
         cvConvert(pSrc,tfd) ;
 
         // Make borders dark
-        cvRectangle(tfd,cv::Point(0,0),cv::Point(tfd->width-1,tfd->height-1),cv::Scalar(0)) ;
+        cv::rectangle(tfd,cv::Point(0,0),cv::Point(tfd->size().width-1,tfd->size().height-1),cv::Scalar(0)) ;
 
         // Weber coefficients
         float rhon , rhos , rhoe , rhow ;
@@ -953,22 +958,22 @@ namespace osiris
         for ( int k = 0 ; k < iterations ; k++ )
         {
             // Odd pixels
-            for ( int i = 1 ; i < tfs->height-1 ; i++ )
+            for ( int i = 1 ; i < tfs->size().height-1 ; i++ )
             {
-                for ( int j = 2-i%2 ; j < tfs->width-1 ; j = j + 2 )
+                for ( int j = 2-i%2 ; j < tfs->size().width-1 ; j = j + 2 )
                 {
                     // Get pixels in neighbourhood of original image
-                    tfsc = ((float*)(tfs->imageData+i*tfs->widthStep))[j] ;
-                    tfsn = ((float*)(tfs->imageData+(i-1)*tfs->widthStep))[j] ;
-                    tfss = ((float*)(tfs->imageData+(i+1)*tfs->widthStep))[j] ;
-                    tfse = ((float*)(tfs->imageData+i*tfs->widthStep))[j-1] ;
-                    tfsw = ((float*)(tfs->imageData+i*tfs->widthStep))[j+1] ;                
+                    tfsc = ((float*)(tfs->imageData+i*tfs->size().widthStep))[j] ;
+                    tfsn = ((float*)(tfs->imageData+(i-1)*tfs->size().widthStep))[j] ;
+                    tfss = ((float*)(tfs->imageData+(i+1)*tfs->size().widthStep))[j] ;
+                    tfse = ((float*)(tfs->imageData+i*tfs->size().widthStep))[j-1] ;
+                    tfsw = ((float*)(tfs->imageData+i*tfs->size().widthStep))[j+1] ;                
                     
                     // Get pixels in neighbourhood of light image
-                    tfdn = ((float*)(tfd->imageData+(i-1)*tfd->widthStep))[j] ;
-                    tfds = ((float*)(tfd->imageData+(i+1)*tfd->widthStep))[j] ;
-                    tfde = ((float*)(tfd->imageData+i*tfd->widthStep))[j-1] ;
-                    tfdw = ((float*)(tfd->imageData+i*tfd->widthStep))[j+1] ;                    
+                    tfdn = ((float*)(tfd->imageData+(i-1)*tfd->size().widthStep))[j] ;
+                    tfds = ((float*)(tfd->imageData+(i+1)*tfd->size().widthStep))[j] ;
+                    tfde = ((float*)(tfd->imageData+i*tfd->size().widthStep))[j-1] ;
+                    tfdw = ((float*)(tfd->imageData+i*tfd->size().widthStep))[j+1] ;                    
 
                     // Compute weber coefficients
                     rhon = min(tfsn,tfsc) / max<float>(1.0,abs(tfsn-tfsc)) ;
@@ -977,7 +982,7 @@ namespace osiris
                     rhow = min(tfsw,tfsc) / max<float>(1.0,abs(tfsw-tfsc)) ;                    
 
                     // Compute LightImage(i,j)                    
-                    ((float*)(tfd->imageData+i*tfd->widthStep))[j] = ( ( tfsc + lambda *
+                    ((float*)(tfd->imageData+i*tfd->size().widthStep))[j] = ( ( tfsc + lambda *
                     ( rhon * tfdn + rhos * tfds + rhoe * tfde + rhow * tfdw ) )
                     / ( 1 + lambda * ( rhon + rhos + rhoe + rhow ) ) ) ;
                 }
@@ -986,22 +991,22 @@ namespace osiris
             cvCopy(tfd,tfs) ;
 
             // Even pixels
-            for ( int i = 1 ; i < tfs->height-1 ; i++ )
+            for ( int i = 1 ; i < tfs->size().height-1 ; i++ )
             {
-                for ( int j = 1+i%2 ; j < tfs->width-1 ; j = j + 2 )
+                for ( int j = 1+i%2 ; j < tfs->size().width-1 ; j = j + 2 )
                 {
                     // Get pixels in neighbourhood of original image
-                    tfsc = ((float*)(tfs->imageData+i*tfs->widthStep))[j] ;
-                    tfsn = ((float*)(tfs->imageData+(i-1)*tfs->widthStep))[j] ;
-                    tfss = ((float*)(tfs->imageData+(i+1)*tfs->widthStep))[j] ;
-                    tfse = ((float*)(tfs->imageData+i*tfs->widthStep))[j-1] ;
-                    tfsw = ((float*)(tfs->imageData+i*tfs->widthStep))[j+1] ;                
+                    tfsc = ((float*)(tfs->imageData+i*tfs->size().widthStep))[j] ;
+                    tfsn = ((float*)(tfs->imageData+(i-1)*tfs->size().widthStep))[j] ;
+                    tfss = ((float*)(tfs->imageData+(i+1)*tfs->size().widthStep))[j] ;
+                    tfse = ((float*)(tfs->imageData+i*tfs->size().widthStep))[j-1] ;
+                    tfsw = ((float*)(tfs->imageData+i*tfs->size().widthStep))[j+1] ;                
                     
                     // Get pixels in neighbourhood of light image
-                    tfdn = ((float*)(tfd->imageData+(i-1)*tfd->widthStep))[j] ;
-                    tfds = ((float*)(tfd->imageData+(i+1)*tfd->widthStep))[j] ;
-                    tfde = ((float*)(tfd->imageData+i*tfd->widthStep))[j-1] ;
-                    tfdw = ((float*)(tfd->imageData+i*tfd->widthStep))[j+1] ;                    
+                    tfdn = ((float*)(tfd->imageData+(i-1)*tfd->size().widthStep))[j] ;
+                    tfds = ((float*)(tfd->imageData+(i+1)*tfd->size().widthStep))[j] ;
+                    tfde = ((float*)(tfd->imageData+i*tfd->size().widthStep))[j-1] ;
+                    tfdw = ((float*)(tfd->imageData+i*tfd->size().widthStep))[j+1] ;                    
 
                     // Compute weber coefficients
                     rhon = min(tfsn,tfsc) / max<float>(1.0,abs(tfsn-tfsc)) ;
@@ -1010,7 +1015,7 @@ namespace osiris
                     rhow = min(tfsw,tfsc) / max<float>(1.0,abs(tfsw-tfsc)) ;                    
 
                     // Compute LightImage(i,j)                    
-                    ((float*)(tfd->imageData+i*tfd->widthStep))[j] = ( ( tfsc + lambda *
+                    ((float*)(tfd->imageData+i*tfd->size().widthStep))[j] = ( ( tfsc + lambda *
                     ( rhon * tfdn + rhos * tfds + rhoe * tfde + rhow * tfdw ) )
                     / ( 1 + lambda * ( rhon + rhos + rhoe + rhow ) ) ) ;
                 }
@@ -1022,19 +1027,19 @@ namespace osiris
         } // end of iterations k
 
         // Borders of image
-        for ( int i = 0 ; i < tfd->height ; i++ )
+        for ( int i = 0 ; i < tfd->size().height ; i++ )
         {
-            ((uchar*)(pDst->imageData+i*pDst->widthStep))[0] =
-            ((uchar*)(pDst->imageData+i*pDst->widthStep))[1] ;
-            ((uchar*)(pDst->imageData+i*pDst->widthStep))[pDst->width-1] =
-            ((uchar*)(pDst->imageData+i*pDst->widthStep))[pDst->width-2] ;
+            ((uchar*)(pDst->imageData+i*pDst->size().widthStep))[0] =
+            ((uchar*)(pDst->imageData+i*pDst->size().widthStep))[1] ;
+            ((uchar*)(pDst->imageData+i*pDst->size().widthStep))[pDst->size().width-1] =
+            ((uchar*)(pDst->imageData+i*pDst->size().widthStep))[pDst->size().width-2] ;
         }
-        for ( int j = 0 ; j < tfd->width ; j++ )
+        for ( int j = 0 ; j < tfd->size().width ; j++ )
         {
             ((uchar*)(pDst->imageData))[j] =
-            ((uchar*)(pDst->imageData+pDst->widthStep))[j] ;
-            ((uchar*)(pDst->imageData+(pDst->height-1)*pDst->widthStep))[j] =
-            ((uchar*)(pDst->imageData+(pDst->height-2)*pDst->widthStep))[j] ;
+            ((uchar*)(pDst->imageData+pDst->size().widthStep))[j] ;
+            ((uchar*)(pDst->imageData+(pDst->size().height-1)*pDst->size().widthStep))[j] =
+            ((uchar*)(pDst->imageData+(pDst->size().height-2)*pDst->size().widthStep))[j] ;
         }
 
         // Release memory
@@ -1080,53 +1085,53 @@ namespace osiris
     {
         // Initialize the output
         rOptimalPath.clear() ;
-        rOptimalPath.resize(pSrc->width) ;
+        rOptimalPath.resize(pSrc->size().width) ;
         
         // Initialize cost matrix to zero
         cv::Mat cost = cv::Mat(pSrc.size(),CV_32FC1) ;
         cost=0 ;
 
         // Forward process : build the cost matrix
-        for ( int w = 0 ; w < pSrc->width ; w++ )
+        for ( int w = 0 ; w < pSrc->size().width ; w++ )
         {
-            for ( int h = 0 ; h < pSrc->height ; h++ )
+            for ( int h = 0 ; h < pSrc->size().height ; h++ )
             {
                 // First column is same as source image
                 if ( w == 0 )
-                    ((float*)(cost->imageData+h*cost->widthStep))[w] =
-                    ((uchar*)(pSrc->imageData+h*pSrc->widthStep))[w] ;
+                    ((float*)(cost->imageData+h*cost->size().widthStep))[w] =
+                    ((uchar*)(pSrc->imageData+h*pSrc->size().widthStep))[w] ;
 
                 else
                 {
                     // First line
                     if ( h == 0 )
-                        ((float*)(cost->imageData+h*cost->widthStep))[w] = max<float>(
-                        ((float*)(cost->imageData+(h)*cost->widthStep))[w-1],
-                        ((float*)(cost->imageData+(h+1)*cost->widthStep))[w-1]) +
-                        ((uchar*)(pSrc->imageData+h*pSrc->widthStep))[w] ;
+                        ((float*)(cost->imageData+h*cost->size().widthStep))[w] = max<float>(
+                        ((float*)(cost->imageData+(h)*cost->size().widthStep))[w-1],
+                        ((float*)(cost->imageData+(h+1)*cost->size().widthStep))[w-1]) +
+                        ((uchar*)(pSrc->imageData+h*pSrc->size().widthStep))[w] ;
 
                     // Last line
-                    else if ( h == pSrc->height - 1 )
+                    else if ( h == pSrc->size().height - 1 )
                     {
-                        ((float*)(cost->imageData+h*cost->widthStep))[w] = max<float>(
-                        ((float*)(cost->imageData+h*cost->widthStep))[w-1],
-                        ((float*)(cost->imageData+(h-1)*cost->widthStep))[w-1]) +
-                        ((uchar*)(pSrc->imageData+h*pSrc->widthStep))[w] ;
+                        ((float*)(cost->imageData+h*cost->size().widthStep))[w] = max<float>(
+                        ((float*)(cost->imageData+h*cost->size().widthStep))[w-1],
+                        ((float*)(cost->imageData+(h-1)*cost->size().widthStep))[w-1]) +
+                        ((uchar*)(pSrc->imageData+h*pSrc->size().widthStep))[w] ;
                     }
 
                     // Middle lines
                     else
-                        ((float*)(cost->imageData+h*cost->widthStep))[w] = max<float>(
-                        ((float*)(cost->imageData+h*cost->widthStep))[w-1],max<float>(
-                        ((float*)(cost->imageData+(h+1)*cost->widthStep))[w-1],
-                        ((float*)(cost->imageData+(h-1)*cost->widthStep))[w-1])) +
-                        ((uchar*)(pSrc->imageData+h*pSrc->widthStep))[w] ;
+                        ((float*)(cost->imageData+h*cost->size().widthStep))[w] = max<float>(
+                        ((float*)(cost->imageData+h*cost->size().widthStep))[w-1],max<float>(
+                        ((float*)(cost->imageData+(h+1)*cost->size().widthStep))[w-1],
+                        ((float*)(cost->imageData+(h-1)*cost->size().widthStep))[w-1])) +
+                        ((uchar*)(pSrc->imageData+h*pSrc->size().widthStep))[w] ;
                 }
             }
         }
 
         // Get the maximum in last column of cost matrix
-        cvSetImageROI(cost,cvRect(cost->width-1,0,1,cost->height)) ;
+        cvSetImageROI(cost,cv::Rect(cost->size().width-1,0,1,cost->size().height)) ;
         cv::Point max_loc ;        
         cvMinMaxLoc(cost,0,0,0,&max_loc) ;
         int h = max_loc.y ;
@@ -1151,13 +1156,13 @@ namespace osiris
             else
             {
                 // h1 is the value above line h
-                h1 = ( h == 0 ) ? 0 : ((float*)(cost->imageData+(h-1)*cost->widthStep))[w] ;
+                h1 = ( h == 0 ) ? 0 : ((float*)(cost->imageData+(h-1)*cost->size().widthStep))[w] ;
 
                 // h2 is the value at line h
-                h2 = ((float*)(cost->imageData+h*cost->widthStep))[w] ;
+                h2 = ((float*)(cost->imageData+h*cost->size().widthStep))[w] ;
 
                 // h3 is the value below line h
-                h3 = ( h == cost->height - 1 ) ? 0 : ((float*)(cost->imageData+(h+1)*cost->widthStep))[w] ;
+                h3 = ( h == cost->size().height - 1 ) ? 0 : ((float*)(cost->imageData+(h+1)*cost->size().widthStep))[w] ;
                 
                 // h1 is the maximum => h decreases
                 if ( h1 > h2 && h1 > h3 )
@@ -1254,11 +1259,11 @@ namespace osiris
             for ( int i = 0 ; i < rContour.size() ; i++ )
             {
                 // Do not exceed image sizes
-                int x = min(max(0,rContour[i].x),pImage->width) ;
-                int y = min(max(0,rContour[i].y),pImage->height) ;
+                int x = min(max(0,rContour[i].x),pImage->size().width) ;
+                int y = min(max(0,rContour[i].y),pImage->size().height) ;
 
                 // Plot the point on image
-                ((uchar *)(mask->imageData+y*mask->widthStep))[x] = 255 ;
+                ((uchar *)(mask->imageData+y*mask->size().widthStep))[x] = 255 ;
             }
         
             // Dilate mask if user specified thickness

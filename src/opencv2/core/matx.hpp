@@ -316,7 +316,7 @@ In addition to the universal notation like Vec<float, 3>, you can use shorter al
 for the most popular specialized variants of Vec, e.g. Vec3f ~ Vec<float, 3>.
 
 It is possible to convert Vec\<T,2\> to/from Point_, Vec\<T,3\> to/from Point3_ , and Vec\<T,4\>
-to cv::Scalar or Scalar_. Use operator[] to access the elements of Vec.
+to CvScalar or Scalar_. Use operator[] to access the elements of Vec.
 
 All the expected vector operations are also implemented:
 -   v1 = v2 + v3

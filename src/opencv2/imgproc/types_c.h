@@ -57,7 +57,7 @@ extern "C" {
 typedef struct CvConnectedComp
 {
     double area;    /**<area of the connected component  */
-    cv::Scalar value; /**<average color of the connected component */
+    CvScalar value; /**<average color of the connected component */
     CvRect rect;    /**<ROI of the component  */
     CvSeq* contour; /**<optional component boundary
                       (the contour might have child contours corresponding to the holes)*/
@@ -512,7 +512,7 @@ typedef struct CvChainPtReader
 {
     CV_SEQ_READER_FIELDS()
     char      code;
-    cv::Point   pt;
+    CvPoint   pt;
     schar     deltas[8][2];
 }
 CvChainPtReader;
@@ -550,9 +550,9 @@ enum
 /** Convexity defect */
 typedef struct CvConvexityDefect
 {
-    cv::Point* start; /**< point of the contour where the defect begins */
-    cv::Point* end; /**< point of the contour where the defect ends */
-    cv::Point* depth_point; /**< the farthest from the convex hull point within the defect */
+    CvPoint* start; /**< point of the contour where the defect begins */
+    CvPoint* end; /**< point of the contour where the defect ends */
+    CvPoint* depth_point; /**< the farthest from the convex hull point within the defect */
     float depth; /**< distance between the farthest point and the convex hull */
 } CvConvexityDefect;
 

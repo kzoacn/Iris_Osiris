@@ -3305,23 +3305,23 @@ public:
     void init( int nparams, int nerrs, CvTermCriteria criteria=
               cvTermCriteria(CV_TERMCRIT_EPS+CV_TERMCRIT_ITER,30,DBL_EPSILON),
               bool completeSymmFlag=false );
-    bool update( const cv::Mat*& param, cv::Mat*& J, cv::Mat*& err );
-    bool updateAlt( const cv::Mat*& param, cv::Mat*& JtJ, cv::Mat*& JtErr, double*& errNorm );
+    bool update( const CvMat*& param, CvMat*& J, CvMat*& err );
+    bool updateAlt( const CvMat*& param, CvMat*& JtJ, CvMat*& JtErr, double*& errNorm );
 
     void clear();
     void step();
     enum { DONE=0, STARTED=1, CALC_J=2, CHECK_ERR=3 };
 
-    cv::Ptr<cv::Mat> mask;
-    cv::Ptr<cv::Mat> prevParam;
-    cv::Ptr<cv::Mat> param;
-    cv::Ptr<cv::Mat> J;
-    cv::Ptr<cv::Mat> err;
-    cv::Ptr<cv::Mat> JtJ;
-    cv::Ptr<cv::Mat> JtJN;
-    cv::Ptr<cv::Mat> JtErr;
-    cv::Ptr<cv::Mat> JtJV;
-    cv::Ptr<cv::Mat> JtJW;
+    cv::Ptr<CvMat> mask;
+    cv::Ptr<CvMat> prevParam;
+    cv::Ptr<CvMat> param;
+    cv::Ptr<CvMat> J;
+    cv::Ptr<CvMat> err;
+    cv::Ptr<CvMat> JtJ;
+    cv::Ptr<CvMat> JtJN;
+    cv::Ptr<CvMat> JtErr;
+    cv::Ptr<CvMat> JtJV;
+    cv::Ptr<CvMat> JtJW;
     double prevErrNorm, errNorm;
     int lambdaLg10;
     CvTermCriteria criteria;
