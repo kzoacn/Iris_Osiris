@@ -314,7 +314,7 @@ namespace osiris
         op.segment(mpOriginalImage,mpMask,mPupil,mIris,mThetaCoarsePupil,mThetaCoarseIris,mCoarsePupilContour,mCoarseIrisContour,minIrisDiameter,minPupilDiameter,maxIrisDiameter,maxPupilDiameter) ;
 
         // Draw on segmented image
-        cv::Mat tmp = cvCloneImage(mpMask) ;
+        cv::Mat tmp = mpMask.clone() ;
         tmp=0 ;
         cv::circle(tmp,mIris.getCenter(),mIris.getRadius(),cv::Scalar(255),-1) ;
         cv::circle(tmp,mPupil.getCenter(),mPupil.getRadius(),cv::Scalar(0),-1) ;

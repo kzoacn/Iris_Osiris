@@ -128,7 +128,7 @@ namespace osiris
         detectPupil(pSrc,rPupil,minPupilDiameter,maxPupilDiameter) ;
 
         // Fill the holes in an area surrounding pupil
-        cv::Mat clone_src = cvCloneImage(pSrc) ;
+        cv::Mat clone_src = pSrc.clone() ;
         cvSetImageROI(clone_src,cvRect(rPupil.getCenter().x-3.0/4.0*maxIrisDiameter/2.0,
                                        rPupil.getCenter().y-3.0/4.0*maxIrisDiameter/2.0,
                                        3.0/4.0*maxIrisDiameter,
@@ -191,7 +191,7 @@ namespace osiris
         // Mask of pupil
         ////////////////
 
-        cv::Mat mask_pupil = cvCloneImage(pSrc) ;
+        cv::Mat mask_pupil = pSrc.clone() ;
         mask_pupil=0 ;
         drawContour(mask_pupil,pupil_accurate_contour,cv::Scalar(255),-1) ;
 
@@ -312,7 +312,7 @@ namespace osiris
         
 
         // Build mask of noise : |I-mean| > 2.35 * variance
-        cv::Mat mask_noise = cvCloneImage(pSrc) ;
+        cv::Mat mask_noise = pSrc.clone() ;
         //cvAbsDiffS(pSrc,mask_noise,cv::Scalar(iris_mean)) ;
 		cvAbsDiffS(pSrc, mask_noise, iris_mean);
         cvThreshold(mask_noise,mask_noise,2.35*iris_variance,255,CV_THRESH_BINARY) ;
@@ -781,10 +781,10 @@ namespace osiris
                                                          cv::Mat pDst )
     {
         // Temporary image that will inform about marker evolution
-        cv::Mat difference = cvCloneImage(pMask) ;
+        cv::Mat difference = pMask.clone() ;
 
         // :WARNING: if user calls f(x,y,y) instead of f(x,y,z), the mask MUST be cloned before processing
-        cv::Mat mask = cvCloneImage(pMask) ;
+        cv::Mat mask = pMask.clone() ;
 
         // Copy the marker
         cvCopy(pMarker,pDst) ;
@@ -843,12 +843,12 @@ namespace osiris
         cvResetImageROI(mask) ;
 
         // Marker for reconstruction : all=0 + borders=255
-        cv::Mat marker = cvCloneImage(mask) ;
+        cv::Mat marker = mask.clone() ;
         marker=0 ;
         cvRectangle(marker,cv::Point(1,1),cv::Point(width+1,height+1),cv::Scalar(255)) ;
 
         // Temporary result of reconstruction
-        cv::Mat result = cvCloneImage(mask) ;
+        cv::Mat result = mask.clone() ;
 
         // Morphological reconstruction
         reconstructMarkerByMask(marker,mask,result) ;
@@ -878,7 +878,7 @@ namespace osiris
             // Rescale between 0 and 255 by computing : (X-min)/(max-min)
             double min_val , max_val ;
             cvMinMaxLoc(pImage,&min_val,&max_val) ;
-            cv::Mat scaled = cvCloneImage(pImage) ;
+            cv::Mat scaled = pImage.clone() ;
             cvScale(pImage,scaled,255/(max_val-min_val),-min_val/(max_val-min_val)) ;
 
             // Convert into 8-bit
@@ -890,7 +890,7 @@ namespace osiris
         }
         else
         {
-            show = cvCloneImage(pImage) ;
+            show = pImage.clone() ;
         }            
 
         // Show image
@@ -1216,7 +1216,7 @@ namespace osiris
         if ( pMask )
         {
             cv::Mat mask_unwrapped = unwrapRing(pMask,rCenter,minRadius,maxRadius,rTheta) ;
-            cv::Mat temp = cvCloneImage(unwrapped) ;
+            cv::Mat temp = unwrapped.clone() ;
             unwrapped=0 ;
             cvCopy(temp,unwrapped,mask_unwrapped) ;
             
