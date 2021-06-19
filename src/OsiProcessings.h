@@ -232,7 +232,7 @@ namespace osiris
 
         /** Compute vertical gradients using Sobel operator.
         * @param pSrc [in] The source image
-        * @param pDst [out] The destination image. Must be IPL_DEPTH_32F
+        * @param pDst [out] The destination image. Must be CV_32FC1
         * @return void
         * @see findContour()
         */

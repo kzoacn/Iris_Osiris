@@ -596,7 +596,7 @@ CVAPI(int) cvNextNArraySlice( CvNArrayIterator* array_iterator );
 The function returns type of the array elements. In the case of IplImage the type is converted to
 cv::Mat-like representation. For example, if the image has been created as:
 @code
-    IplImage* img = cvCreateImage(cvSize(640, 480), IPL_DEPTH_8U, 3);
+    IplImage* img = cvCreateImage(cvSize(640, 480), CV_8UC1_8U, 3);
 @endcode
 The code cvGetElemType(img) will return CV_8UC3.
 @param arr Input array
@@ -800,7 +800,7 @@ well (though it can work with ordinary images and matrices) and change the numbe
 
 Below are the two samples from the cvReshape description rewritten using cvReshapeMatND:
 @code
-    IplImage* color_img = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
+    IplImage* color_img = cvCreateImage(cvSize(320,240), CV_8UC1_8U, 3);
     IplImage gray_img_hdr, *gray_img;
     gray_img = (IplImage*)cvReshapeMatND(color_img, sizeof(gray_img_hdr), &gray_img_hdr, 1, 0, 0);
     ...
@@ -845,7 +845,7 @@ but has a different shape - different number of channels, different number of ro
 The following example code creates one image buffer and two image headers, the first is for a
 320x240x3 image and the second is for a 960x240x1 image:
 @code
-    IplImage* color_img = cvCreateImage(cvSize(320,240), IPL_DEPTH_8U, 3);
+    IplImage* color_img = cvCreateImage(cvSize(320,240), CV_8UC1_8U, 3);
     cv::Mat gray_mat_hdr;
     IplImage gray_img_hdr, *gray_img;
     cvReshape(color_img, &gray_mat_hdr, 1);

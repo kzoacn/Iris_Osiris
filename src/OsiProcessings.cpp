@@ -300,7 +300,7 @@ namespace osiris
         // Compute the mean and the variance of iris texture inside safe area
         //double iris_mean = cvMean(pSrc,safe_area) ;
 		cv::Scalar iris_mean = cvAvg(pSrc, safe_area);
-        cv::Mat variance = cvCreateImage(pSrc.size(),IPL_DEPTH_32F,1) ;
+        cv::Mat variance = cv::Mat(pSrc.size(),CV_32FC1) ;
         cvConvert(pSrc,variance) ;
         //cvSubS(variance,cv::Scalar(iris_mean),variance,safe_area) ;
 		cvSubS(variance, iris_mean, variance, safe_area);
@@ -482,8 +482,8 @@ namespace osiris
         cv::Mat resized = addBorders(pSrc,max_width) ;
 
         // Temporary images to store the result of convolution
-        cv::Mat img1 = cvCreateImage(resized.size(),IPL_DEPTH_32F,1) ;
-        cv::Mat img2 = cvCreateImage(resized.size(),pDst->depth,1) ;
+        cv::Mat img1 = cv::Mat(resized.size(),CV_32FC1) ;
+        cv::Mat img2 = cv::Mat(resized.size(),pDst->depth,1) ;
         
         // Loop on filters
         for ( int f = 0 ; f < rFilters.size() ; f++ )
@@ -515,7 +515,7 @@ namespace osiris
                                   const cv::Mat mask )
     {    
         // Temporary matrix to store the XOR result
-        cv::Mat result = cvCreateImage(cvGetSize(image1),IPL_DEPTH_8U,1) ;
+        cv::Mat result = cv::Mat(cvGetSize(image1),CV_8UC1) ;
         cvSet(result,cv::Scalar(0)) ;
         
         // Add borders on the image1 in order to shift it
@@ -569,7 +569,7 @@ namespace osiris
                                                   int width )
     {
         // Result image
-        cv::Mat result = cvCreateImage(cvSize(pImage->width+2*width,pImage->height),pImage->depth,pImage->nChannels) ;
+        cv::Mat result = cv::Mat(cvSize(pImage->width+2*width,pImage->height),pImage->depth,pImage->nChannels) ;
         
         // Copy the image in the center
         cvCopyMakeBorder(pImage,result,cv::Point(width,0),IPL_BORDER_REPLICATE,cv::ScalarAll(0)) ;    
@@ -643,7 +643,7 @@ namespace osiris
 
         // Resize image (downsample)
         float scale = (float) OSI_SMALLEST_PUPIL / minPupilDiameter ;
-        cv::Mat resized = cvCreateImage(cvSize(pSrc->width*scale,pSrc->height*scale),pSrc->depth,1) ;
+        cv::Mat resized = cv::Mat(cvSize(pSrc->width*scale,pSrc->height*scale),pSrc->depth,1) ;
         cvResize(pSrc,resized) ;
 
         // Rescale sizes
@@ -655,23 +655,23 @@ namespace osiris
         minPupilDiameter += ( minPupilDiameter % 2 ) ? 0 : -1 ;
 
         // Fill holes
-        cv::Mat filled = cvCreateImage(resized.size(),resized->depth,1) ;
+        cv::Mat filled = cv::Mat(resized.size(),resized->depth,1) ;
         fillWhiteHoles(resized,filled) ;
 
         // Gradients in horizontal direction
-        cv::Mat gh = cvCreateImage(filled.size(),IPL_DEPTH_32F,1) ;
+        cv::Mat gh = cv::Mat(filled.size(),CV_32FC1) ;
         cvSobel(filled,gh,1,0) ;
 
         // Gradients in vertical direction
-        cv::Mat gv = cvCreateImage(filled.size(),IPL_DEPTH_32F,1) ;
+        cv::Mat gv = cv::Mat(filled.size(),CV_32FC1) ;
         cvSobel(filled,gv,0,1) ;
 
         // Normalize gradients
-        cv::Mat gh2 = cvCreateImage(filled.size(),IPL_DEPTH_32F,1) ;
+        cv::Mat gh2 = cv::Mat(filled.size(),CV_32FC1) ;
         cvMul(gh,gh,gh2) ;
-        cv::Mat gv2 = cvCreateImage(filled.size(),IPL_DEPTH_32F,1) ;
+        cv::Mat gv2 = cv::Mat(filled.size(),CV_32FC1) ;
         cvMul(gv,gv,gv2) ;
-        cv::Mat gn = cvCreateImage(filled.size(),IPL_DEPTH_32F,1) ;        
+        cv::Mat gn = cv::Mat(filled.size(),CV_32FC1) ;        
         cvAdd(gh2,gv2,gn) ;
         cvPow(gn,gn,0.5) ;
         cvDiv(gh,gn,gh) ;
@@ -836,7 +836,7 @@ namespace osiris
         }
 
         // Mask for reconstruction : pSrc + borders=0
-        cv::Mat mask = cvCreateImage(cvSize(width+2,height+2),pSrc->depth,1) ;
+        cv::Mat mask = cv::Mat(cvSize(width+2,height+2),pSrc->depth,1) ;
         cvZero(mask) ;
         cvSetImageROI(mask,cvRect(1,1,width,height)) ;
         cvCopy(pSrc,mask) ;
@@ -882,7 +882,7 @@ namespace osiris
             cvScale(pImage,scaled,255/(max_val-min_val),-min_val/(max_val-min_val)) ;
 
             // Convert into 8-bit
-            show = cvCreateImage(pImage.size(),IPL_DEPTH_8U,1) ;
+            show = cv::Mat(pImage.size(),CV_8UC1) ;
             cvConvert(scaled,show) ;
 
             // Release memory
@@ -913,7 +913,7 @@ namespace osiris
                                             const vector<float> & rTheta )
     {
         // Result image
-        cv::Mat result = cvCreateImage(cvSize(rTheta.size(),maxRadius-minRadius+1),pSrc->depth,1) ;
+        cv::Mat result = cv::Mat(cvSize(rTheta.size(),maxRadius-minRadius+1),pSrc->depth,1) ;
         cvZero(result) ;
 
         // Loop on columns of normalized image
@@ -946,9 +946,9 @@ namespace osiris
                                                              float lambda )
     {
         // Temporary float images
-        cv::Mat tfs = cvCreateImage(pSrc.size(),IPL_DEPTH_32F,1) ;
+        cv::Mat tfs = cv::Mat(pSrc.size(),CV_32FC1) ;
         cvConvert(pSrc,tfs) ;
-        cv::Mat tfd = cvCreateImage(pSrc.size(),IPL_DEPTH_32F,1) ;        
+        cv::Mat tfd = cv::Mat(pSrc.size(),CV_32FC1) ;        
         cvConvert(pSrc,tfd) ;
 
         // Make borders dark
@@ -1063,7 +1063,7 @@ namespace osiris
     void OsiProcessings::computeVerticalGradients ( const cv::Mat pSrc , cv::Mat pDst )
     {
         // Float values for Sobel
-        cv::Mat result_sobel = cvCreateImage(pSrc.size(),IPL_DEPTH_32F,1) ;
+        cv::Mat result_sobel = cv::Mat(pSrc.size(),CV_32FC1) ;
         
         // Sobel filter in vertical direction
         cvSobel(pSrc,result_sobel,0,1) ;
@@ -1094,7 +1094,7 @@ namespace osiris
         rOptimalPath.resize(pSrc->width) ;
         
         // Initialize cost matrix to zero
-        cv::Mat cost = cvCreateImage(pSrc.size(),IPL_DEPTH_32F,1) ;
+        cv::Mat cost = cv::Mat(pSrc.size(),CV_32FC1) ;
         cvZero(cost) ;
 
         // Forward process : build the cost matrix
@@ -1260,7 +1260,7 @@ namespace osiris
         else
         {
             // Draw the contour on binary mask
-            cv::Mat mask = cvCreateImage(pImage.size(),IPL_DEPTH_8U,1) ;
+            cv::Mat mask = cv::Mat(pImage.size(),CV_8UC1) ;
             cvZero(mask) ;
             for ( int i = 0 ; i < rContour.size() ; i++ )
             {
