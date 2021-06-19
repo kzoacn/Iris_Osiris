@@ -290,7 +290,7 @@ namespace osiris
         {
             throw runtime_error("Cannot initialize the mask because original image is not loaded") ;
         }
-        mpMask = cvCreateImage(cvGetSize(mpOriginalImage),IPL_DEPTH_8U,1) ;
+        mpMask = cvCreateImage(mpOriginalImage.size(),IPL_DEPTH_8U,1) ;
         cvSet(mpMask,cv::Scalar(255)) ;
     }
 
@@ -304,8 +304,8 @@ namespace osiris
         }
 
         // Initialize mask and segmented image
-        mpMask = cvCreateImage(cvGetSize(mpOriginalImage),IPL_DEPTH_8U,1) ;
-        mpSegmentedImage = cvCreateImage(cvGetSize(mpOriginalImage),IPL_DEPTH_8U,3) ;
+        mpMask = cvCreateImage(mpOriginalImage.size(),IPL_DEPTH_8U,1) ;
+        mpSegmentedImage = cvCreateImage(mpOriginalImage.size(),IPL_DEPTH_8U,3) ;
         cvCvtColor(mpOriginalImage,mpSegmentedImage,CV_GRAY2BGR) ;
 
         // Processing functions
@@ -373,7 +373,7 @@ namespace osiris
         }
 
         // Create the image to store the iris code
-        CvSize size = cvGetSize(mpNormalizedImage) ;
+        CvSize size = mpNormalizedImage.size() ;
         mpIrisCode = cvCreateImage(cvSize(size.width,size.height*rGaborFilters.size()),IPL_DEPTH_8U,1) ;
 
         // Encode
@@ -401,25 +401,25 @@ namespace osiris
         // did not provide any mask ! So it must be found a way to inform user but without spamming
         if ( ! mpNormalizedMask.empty() )
         {
-            mpNormalizedMask = cvCreateImage(cvGetSize(pApplicationPoints),IPL_DEPTH_8U,1) ;
+            mpNormalizedMask = cvCreateImage(pApplicationPoints.size(),IPL_DEPTH_8U,1) ;
             cvSet(mpNormalizedMask,cv::Scalar(255)) ;
             //cout << "Normalized mask of image 1 is missing for matching. All pixels are initialized to 255" << endl ;
         }
         if ( ! rEye.mpNormalizedMask.empty() )
         {
-            rEye.mpNormalizedMask = cvCreateImage(cvGetSize(pApplicationPoints),IPL_DEPTH_8U,1) ;
+            rEye.mpNormalizedMask = cvCreateImage(pApplicationPoints.size(),IPL_DEPTH_8U,1) ;
             cvSet(rEye.mpNormalizedMask,cv::Scalar(255)) ;
             //cout << "Normalized mask of image 2 is missing for matching. All pixels are initialized to 255" << endl ;
         }
 
         // Build the total mask = mask1 * mask2 * points    
-        cv::Mat temp = cvCreateImage(cvGetSize(pApplicationPoints),mpIrisCode->depth,1) ;
+        cv::Mat temp = cvCreateImage(pApplicationPoints.size(),mpIrisCode->depth,1) ;
         cvSet(temp,cv::Scalar(0)) ;
         cvAnd(mpNormalizedMask,rEye.mpNormalizedMask,temp,pApplicationPoints) ;
 
         // Copy the mask f times, where f correspond to the number of codes (= number of filters)
         int n_codes = mpIrisCode->height / pApplicationPoints->height ;
-        cv::Mat total_mask = cvCreateImage(cvGetSize(mpIrisCode),IPL_DEPTH_8U,1) ;
+        cv::Mat total_mask = cvCreateImage(mpIrisCode.size(),IPL_DEPTH_8U,1) ;
         for ( int n = 0 ; n < n_codes ; n++ )
         {
             cvSetImageROI(total_mask,cvRect(0,n*pApplicationPoints->height,pApplicationPoints->width,pApplicationPoints->height)) ;
