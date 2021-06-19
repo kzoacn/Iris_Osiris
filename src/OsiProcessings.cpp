@@ -192,7 +192,7 @@ namespace osiris
         ////////////////
 
         cv::Mat mask_pupil = cvCloneImage(pSrc) ;
-        cvZero(mask_pupil) ;
+        mask_pupil=0 ;
         drawContour(mask_pupil,pupil_accurate_contour,cv::Scalar(255),-1) ;
 
         
@@ -226,7 +226,7 @@ namespace osiris
         ///////////////
 
         cv::Mat mask_iris = cvCloneImage(mask_pupil) ;
-        cvZero(mask_iris) ;
+        mask_iris=0 ;
         drawContour(mask_iris,iris_coarse_contour,cv::Scalar(255),-1) ;
 
 
@@ -279,7 +279,7 @@ namespace osiris
         // Mask of iris based on accurate contours
         //////////////////////////////////////////
         
-        cvZero(mask_iris) ;
+        mask_iris=0 ;
         drawContour(mask_iris,iris_accurate_contour,cv::Scalar(255),-1) ;
         cvXor(mask_iris,mask_pupil,mask_iris) ;
 
@@ -717,12 +717,12 @@ namespace osiris
             cv::circle(mask,cv::Point((filter_size-1)/2,(filter_size-1)/2),r,cv::Scalar(1),2) ;
 
             // Fh * Gh
-            cvZero(temp_filter) ;
+            temp_filter=0 ;
             cvCopy(fh,temp_filter,mask) ;
             cvFilter2D(gh,gh2,temp_filter) ;
 
             // Fv * Gv
-            cvZero(temp_filter) ;
+            temp_filter=0 ;
             cvCopy(fv,temp_filter,mask) ;
             cvFilter2D(gv,gv2,temp_filter) ;
 
