@@ -420,9 +420,8 @@ namespace osiris
         cv::Mat total_mask = cv::Mat(mpIrisCode.size(),CV_8UC1) ;
         for ( int n = 0 ; n < n_codes ; n++ )
         {
-            cvSetImageROI(total_mask,cv::Rect(0,n*pApplicationPoints->size().height,pApplicationPoints->size().width,pApplicationPoints->size().height)) ;
-            cvCopy(temp,total_mask) ;        
-            cvResetImageROI(total_mask) ;
+            cv::Mat image_roi=total_mask(cv::Rect(0,n*pApplicationPoints->size().height,pApplicationPoints->size().width,pApplicationPoints->size().height)) ;
+            temp.copyTo(image_roi);   //TODO
         }
 
         // Match

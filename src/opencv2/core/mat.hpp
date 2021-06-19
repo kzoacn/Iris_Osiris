@@ -627,7 +627,7 @@ There are many different ways to create a Mat object. The most popular options a
 
 - Use the create(nrows, ncols, type) method or the similar Mat(nrows, ncols, type[, fillValue])
 constructor. A new array of the specified size and type is allocated. type has the same meaning as
-in the cvCreateMat method. For example, CV_8UC1 means a 8-bit single-channel array, CV_32FC2
+in the cv::Mat method. For example, CV_8UC1 means a 8-bit single-channel array, CV_32FC2
 means a 2-channel (complex) floating-point array, and so on.
 @code
     // make a 7x7 complex matrix filled with 1+3j.

@@ -680,8 +680,8 @@ namespace osiris
         // Create the filters fh and fv
         int filter_size = maxPupilDiameter ;
         filter_size += ( filter_size % 2 ) ? 0 : -1 ;
-        cv::Mat * fh = cvCreateMat(filter_size,filter_size,CV_32FC1) ;
-        cv::Mat * fv = cvCreateMat(filter_size,filter_size,CV_32FC1) ;
+        cv::Mat * fh = cv::Mat(filter_size,filter_size,CV_32FC1) ;
+        cv::Mat * fv = cv::Mat(filter_size,filter_size,CV_32FC1) ;
         for ( int i = 0 ; i < fh->rows ; i++ )
         {
             float x = i - (filter_size-1)/2 ;
@@ -702,10 +702,10 @@ namespace osiris
         }
 
         // Create the mask
-        cv::Mat * mask = cvCreateMat(filter_size,filter_size,CV_8UC1) ;
+        cv::Mat * mask = cv::Mat(filter_size,filter_size,CV_8UC1) ;
 
         // Temporary matrix for masking the filter (later : tempfilter = filter * mask)
-        cv::Mat * temp_filter = cvCreateMat(filter_size,filter_size,CV_32FC1) ;
+        cv::Mat * temp_filter = cv::Mat(filter_size,filter_size,CV_32FC1) ;
 
         double old_max_val = 0 ;
 
@@ -757,18 +757,7 @@ namespace osiris
         int r = rPupil.getRadius() / scale ;
         rPupil.setCircle(x,y,r) ;
         
-        // Release memory
-        
-        
-        
-        
-        
-        
-        
-        cvReleaseMat(&fh) ;
-        cvReleaseMat(&fv) ;
-        cvReleaseMat(&mask) ;
-        cvReleaseMat(&temp_filter) ;
+        // Release memory 
 
     } // end of function
 

@@ -541,7 +541,7 @@ cv::Mat;
     (((depth) & IPL_DEPTH_SIGN) ? 20 : 0))) & 15)
 
 /** Inline constructor. No data is allocated internally!!!
- * (Use together with cvCreateData, or use cvCreateMat instead to
+ * (Use together with cvCreateData, or use cv::Mat instead to
  * get a matrix with allocated data):
  */
 CV_INLINE cv::Mat cv::Mat( int rows, int cols, int type, void* data CV_DEFAULT(NULL))

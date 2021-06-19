@@ -213,9 +213,9 @@ The function allocates a new matrix header and returns a pointer to it. The matr
 allocated using cvCreateData or set explicitly to user-allocated data via cvSetData.
 @param rows Number of rows in the matrix
 @param cols Number of columns in the matrix
-@param type Type of the matrix elements, see cvCreateMat
+@param type Type of the matrix elements, see cv::Mat
  */
-CVAPI(cv::Mat*)  cvCreateMatHeader( int rows, int cols, int type );
+CVAPI(cv::Mat*)  cv::MatHeader( int rows, int cols, int type );
 
 #define CV_AUTOSTEP  0x7fffffff
 
@@ -246,7 +246,7 @@ following code computes the matrix product of two matrices, stored as ordinary a
 @param mat A pointer to the matrix header to be initialized
 @param rows Number of rows in the matrix
 @param cols Number of columns in the matrix
-@param type Type of the matrix elements, see cvCreateMat .
+@param type Type of the matrix elements, see cv::Mat .
 @param data Optional: data pointer assigned to the matrix header
 @param step Optional: full row width in bytes of the assigned data. By default, the minimal
 possible step is used which assumes there are no gaps between subsequent rows of the matrix.
@@ -259,7 +259,7 @@ CVAPI(cv::Mat*) cvInitMatHeader( cv::Mat* mat, int rows, int cols,
 
 The function call is equivalent to the following code:
 @code
-    cv::Mat* mat = cvCreateMatHeader(rows, cols, type);
+    cv::Mat* mat = cv::MatHeader(rows, cols, type);
     cvCreateData(mat);
 @endcode
 @param rows Number of rows in the matrix
@@ -269,7 +269,7 @@ CV_\<bit depth\>\<S|U|F\>C\<number of channels\> , where S=signed, U=unsigned, F
 example, CV _ 8UC1 means the elements are 8-bit unsigned and the there is 1 channel, and CV _
 32SC2 means the elements are 32-bit signed and there are 2 channels.
  */
-CVAPI(cv::Mat*)  cvCreateMat( int rows, int cols, int type );
+CVAPI(cv::Mat*)  cv::Mat( int rows, int cols, int type );
 
 /** @brief Deallocates a matrix.
 
@@ -432,30 +432,30 @@ The function allocates a header for a multi-dimensional dense array. The array d
 allocated using cvCreateData or set explicitly to user-allocated data via cvSetData.
 @param dims Number of array dimensions
 @param sizes Array of dimension sizes
-@param type Type of array elements, see cvCreateMat
+@param type Type of array elements, see cv::Mat
  */
-CVAPI(cv::MatND*)  cvCreateMatNDHeader( int dims, const int* sizes, int type );
+CVAPI(cv::MatND*)  cv::MatNDHeader( int dims, const int* sizes, int type );
 
 /** @brief Creates the header and allocates the data for a multi-dimensional dense array.
 
 This function call is equivalent to the following code:
 @code
-    cv::MatND* mat = cvCreateMatNDHeader(dims, sizes, type);
+    cv::MatND* mat = cv::MatNDHeader(dims, sizes, type);
     cvCreateData(mat);
 @endcode
 @param dims Number of array dimensions. This must not exceed CV_MAX_DIM (32 by default, but can be
 changed at build time).
 @param sizes Array of dimension sizes.
-@param type Type of array elements, see cvCreateMat .
+@param type Type of array elements, see cv::Mat .
  */
-CVAPI(cv::MatND*)  cvCreateMatND( int dims, const int* sizes, int type );
+CVAPI(cv::MatND*)  cv::MatND( int dims, const int* sizes, int type );
 
 /** @brief Initializes a pre-allocated multi-dimensional array header.
 
 @param mat A pointer to the array header to be initialized
 @param dims The number of array dimensions
 @param sizes An array of dimension sizes
-@param type Type of array elements, see cvCreateMat
+@param type Type of array elements, see cv::Mat
 @param data Optional data pointer assigned to the matrix header
  */
 CVAPI(cv::MatND*)  cvInitMatNDHeader( cv::MatND* mat, int dims, const int* sizes,
@@ -805,7 +805,7 @@ Below are the two samples from the cvReshape description rewritten using cvResha
     gray_img = (IplImage*)cvReshapeMatND(color_img, sizeof(gray_img_hdr), &gray_img_hdr, 1, 0, 0);
     ...
     int size[] = { 2, 2, 2 };
-    cv::MatND* mat = cvCreateMatND(3, size, CV_32F);
+    cv::MatND* mat = cv::MatND(3, size, CV_32F);
     cv::Mat row_header, *row;
     row = (cv::Mat*)cvReshapeMatND(mat, sizeof(row_header), &row_header, 0, 1, 0);
 @endcode
@@ -853,7 +853,7 @@ The following example code creates one image buffer and two image headers, the f
 @endcode
 And the next example converts a 3x3 matrix to a single 1x9 vector:
 @code
-    cv::Mat* mat = cvCreateMat(3, 3, CV_32F);
+    cv::Mat* mat = cv::Mat(3, 3, CV_32F);
     cv::Mat row_header, *row;
     row = cvReshape(mat, &row_header, 0, 1);
 @endcode
@@ -893,7 +893,7 @@ CVAPI(void)  cvReleaseData( CvArr* arr );
 /** @brief Assigns user data to the array header.
 
 The function assigns user data to the array header. Header should be initialized before using
-cvCreateMatHeader, cvCreateImageHeader, cvCreateMatNDHeader, cvInitMatHeader,
+cv::MatHeader, cvCreateImageHeader, cv::MatNDHeader, cvInitMatHeader,
 cvInitImageHeader or cvInitMatNDHeader.
 @param arr Array header
 @param data User data
@@ -2133,7 +2133,7 @@ Below is the code that creates the YAML file shown in the CvFileStorage descript
 
     int main( int argc, char** argv )
     {
-        cv::Mat* mat = cvCreateMat( 3, 3, CV_32F );
+        cv::Mat* mat = cv::Mat( 3, 3, CV_32F );
         CvFileStorage* fs = cvOpenFileStorage( "example.yml", 0, CV_STORAGE_WRITE );
 
         cvSetIdentity( mat );

@@ -73,14 +73,12 @@ namespace osiris
     {
         // Release matrix for application points
         if ( mpApplicationPoints )
-        {
-            cvReleaseMat(&mpApplicationPoints) ;
+        { 
         }
         
         // Release matrix for Gabor filters
         for ( int f = 0 ; f < mGaborFilters.size() ; f++ )
-        {
-            cvReleaseMat(&mGaborFilters[f]) ;
+        { 
         }
     }
 
@@ -367,9 +365,9 @@ namespace osiris
 
         if ( mProcessMatching && mpApplicationPoints )
         {
-            double max_val ;
-            cvMinMaxLoc(mpApplicationPoints,0,&max_val) ;
-            cout << "- " << cvSum(mpApplicationPoints).val[0]/max_val << " application points" << endl ;
+            double max_val,min_val ;
+            cv::minMaxLoc(*mpApplicationPoints,&min_val,&max_val) ;
+            cout << "- " << cv::sum(*mpApplicationPoints)/max_val << " application points" << endl ;
         }
 
     } // end of function
@@ -402,14 +400,14 @@ namespace osiris
             file >> cols ;
 
             // Temporary filter. Will be destroyed at the end of loop
-            mGaborFilters[f] = cvCreateMat(rows,cols,CV_32FC1) ;            
+            *mGaborFilters[f] = cv::Mat(rows,cols,CV_32FC1) ;            
             
             // Set the value at coordinates r,c
             for ( int r = 0 ; r < rows ; r++ )
             {
                 for ( int c = 0 ; c < cols ; c++ )
                 {
-                    file >> mGaborFilters[f]->data.fl[r*cols+c] ;
+                    file >> (*mGaborFilters[f]).at<float>(r,c); 
                 }
             }
 
@@ -439,10 +437,10 @@ namespace osiris
         file >> n_points ;
 
         // Allocate memory for the matrix containing the points
-        mpApplicationPoints = cvCreateMat(mHeightOfNormalizedIris,mWidthOfNormalizedIris,CV_8UC1) ;
+        mpApplicationPoints = &cv::Mat(mHeightOfNormalizedIris,mWidthOfNormalizedIris,CV_8UC1);
 
         // Initialize all pixels to "off"
-        mpApplicationPoints=cv::Scalar(0) ;        
+        *mpApplicationPoints=cv::Scalar(0) ;        
 
         // Local variables
         int i , j ;
@@ -463,7 +461,8 @@ namespace osiris
             }
             else
             {
-                mpApplicationPoints->data.ptr[(i)*mpApplicationPoints->cols+j] = 255 ;
+                (*mpApplicationPoints).at<uchar>(i,j)=255;
+                //mpApplicationPoints->data.ptr[(i)*mpApplicationPoints->cols+j] = 255 ;
             }
         }
 
